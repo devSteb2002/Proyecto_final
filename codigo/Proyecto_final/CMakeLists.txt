@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.19)
 project(Proyecto_final LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Multimedia)
 
 qt_standard_project_setup()
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 
 qt_add_executable(Proyecto_final
     WIN32 MACOSX_BUNDLE
@@ -11,12 +17,17 @@ qt_add_executable(Proyecto_final
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    resources.qrc
+    classes/character.h classes/character.cpp
+    classes/player.h classes/player.cpp
+
 )
 
 target_link_libraries(Proyecto_final
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt::Multimedia
 )
 
 include(GNUInstallDirs)

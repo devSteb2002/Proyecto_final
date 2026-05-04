@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/cities.png</file>
+        <file>images/backgorund.jpg</file>
+        <file>fonts/Orbitron-Medium.ttf</file>
+        <file>audio/principal-theme.mp3</file>
+        <file>images/bg-level-1.png</file>
+    </qresource>
+</RCC>
