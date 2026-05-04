@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QFontDatabase>
 #include <QFile>
+#include <QScreen>
 #include "classes/player.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -13,24 +14,39 @@ MainWindow::MainWindow(QWidget *parent)
 
     QFontDatabase::addApplicationFont(":/fonts/Orbitron-Medium.ttf");
 
-    this->stack = new QStackedWidget(this); //gestor de "escenas"
-    this->menuScreen = new QWidget();
-    this->menuScreen->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->bgMenu = new QLabel(menuScreen);
-    this->audioOutput = new QAudioOutput(this); // salida del audio
-    this->theme = new QMediaPlayer(this); // tema principal
+    if (this->layout()){
+        this->layout()->setContentsMargins(0, 0, 0, 0);
+        this->layout()->setSpacing(0);
+    }
 
-    QVBoxLayout* menuLayout = new QVBoxLayout(menuScreen);
-    QLabel* title = new QLabel("Golfito");
-    QPushButton* playBtn = new QPushButton("Jugar");
-    QPushButton* exitBtn = new QPushButton("Salir");
+    if (this->centralWidget()) this->centralWidget()->setContentsMargins(0, 0, 0, 0);
+
+    this->stack           = new QStackedWidget(this); //gestor de "escenas"
+    this->menuScreen = new QWidget();
+    this->bgMenu       = new QLabel(menuScreen);
+    this->audioOutput  = new QAudioOutput(this); // salida del audio
+    this->theme          = new QMediaPlayer(this); // tema principal
+
+    this->menuScreen->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->stack->setFrameShape(QFrame::NoFrame);
+    this->stack->setFrameStyle(QFrame::NoFrame);
+    this->stack->setLineWidth(0);
+    this->stack->setMidLineWidth(0);
+    this->stack->setContentsMargins(0, 0, 0, 0);
+
+    this->centralWidget()->setStyleSheet("margin: 0px; padding: 0px; border: none;");
+
+    QVBoxLayout* menuLayout   = new QVBoxLayout(menuScreen);
+    QLabel* title                         = new QLabel("Golfito");
+    QPushButton* playBtn           = new QPushButton("Jugar");
+    QPushButton* exitBtn           = new QPushButton("Salir");
 
     menuLayout->setContentsMargins(0, 0, 0, 0);
 
    QPixmap sheet(":/images/backgorund.jpg");
-   this->originalFrame = sheet;
 
-   bgMenu->lower();
+   this->originalFrame = sheet;
+   this->bgMenu->lower();
 
    playBtn->setFixedWidth(300);
    playBtn->setCursor(Qt::PointingHandCursor);
@@ -83,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
        "QPushButton:pressed {"
             "background-color: rgba(255, 255, 255, 100);"
        "}"
-       );
+    );
 
    menuLayout->addStretch();
 
@@ -116,16 +132,26 @@ MainWindow::MainWindow(QWidget *parent)
        close();
    });
 
-   QTimer::singleShot(0, this, [=]() {
+   QTimer::singleShot(50, this, [=]() {
+
+       // 1. Obtenemos el rectángulo real del contenedor
+       QRect rectCapa = menuScreen->rect();
+
+       // 2. Le damos un pequeño margen de error para que no se vea el fondo
+       rectCapa.setWidth(rectCapa.width() + 2);
+       rectCapa.setHeight(rectCapa.height() + 2);
+
+       // 3. Escalamos la imagen basándonos en ese nuevo tamaño
        QPixmap scaled = originalFrame.scaled(
-           menuScreen->size(),
+           rectCapa.size(),
            Qt::KeepAspectRatioByExpanding,
            Qt::SmoothTransformation
            );
 
-       this->bgMenu->setAlignment(Qt::AlignCenter);
+       // 4. Aplicamos todo al Label en un solo paso
        this->bgMenu->setPixmap(scaled);
-       this->bgMenu->setGeometry(menuScreen->rect());
+       this->bgMenu->setGeometry(rectCapa);
+       this->bgMenu->setAlignment(Qt::AlignCenter);
 
    });
 
@@ -134,9 +160,10 @@ MainWindow::MainWindow(QWidget *parent)
    //---------------------------------------------------------------
 
    this->scene = new QGraphicsScene(this);
-   this->view = new QGraphicsView(scene, this);
+   this->view   = new QGraphicsView(scene, this);
+
    this->stack->addWidget(view);
-   this->scene->setSceneRect(0, 0, 2000, 700);
+   this->scene->setSceneRect(0, 0, 2000, 600);
 
    this->view->setSceneRect(this->scene->sceneRect());
    this->view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -144,35 +171,86 @@ MainWindow::MainWindow(QWidget *parent)
    this->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
    this->view->setFrameShape(QFrame::NoFrame);
    this->view->setBackgroundBrush(Qt::NoBrush);
+   this->view->setStyleSheet("background: transparent; border: none;");
 
-   //nivel 1
-   // QGraphicsRectItem* ground = new QGraphicsRectItem(0, 500, 2000, 100);
-   // ground->setBrush(Qt::darkGreen);
-   // scene->addItem(ground);
-
-   qDebug() << "view rect:" << view->rect();
-   qDebug() << "scene rect:" << scene->sceneRect();
-
-   QPixmap bg(":/images/bg-level-1.png");
-
-   bg = bg.scaled(scene->sceneRect().width(),
-                  scene->sceneRect().height(),
-                  Qt::IgnoreAspectRatio,
-                  Qt::SmoothTransformation);
-
-   QGraphicsPixmapItem* background = new QGraphicsPixmapItem(bg);
-
-   background->setPos(0, 0);
-   background->setZValue(-1000);
-
-   scene->addItem(background);
+   this->designLevel1(scene); // diseño nivel 1
 
    Player* player = new Player();
-
    this->scene->addItem(player);
+
+   QTimer::singleShot(50, this, [=]() {
+       QRect screenRect = this->screen()->geometry();
+
+        this->setFixedSize(screenRect.size());
+        this->stack->setFixedSize(screenRect.size());
+        this->scene->setSceneRect(0, 0, 2000, screenRect.height());
+        this->view->setFixedSize(screenRect.size());
+        this->view->setStyleSheet("background-color: #040405; border: none;");
+   });
 
 }
 
+void MainWindow::designLevel1(QGraphicsScene*& scene){
+    QPixmap bg(":/images/bg-level-1.png");
+
+    bg = bg.scaled(scene->sceneRect().width(),
+                   scene->sceneRect().height(),
+                   Qt::IgnoreAspectRatio,
+                   Qt::SmoothTransformation);
+
+    unsigned const short   des = 50;
+    QGraphicsPixmapItem* background = new QGraphicsPixmapItem(bg);
+
+    QPixmap walls(":/images/walls.png");
+    QPixmap stoneWall = walls.copy(234, 263, 30, 20).scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    const unsigned short px = 75;
+    unsigned short py = 840;
+
+    for (unsigned short i = 0; i < 6; i++){
+        QGraphicsPixmapItem* walls_   = new QGraphicsPixmapItem(stoneWall);
+        QGraphicsPixmapItem* walls_2   = new QGraphicsPixmapItem(stoneWall);
+        QGraphicsPixmapItem* walls_3   = new QGraphicsPixmapItem(stoneWall);
+        QGraphicsPixmapItem* walls_4   = new QGraphicsPixmapItem(stoneWall);
+
+        walls_->setPos(0, py);
+        walls_->setData(0, "wall");
+        scene->addItem(walls_);
+
+        walls_2->setPos(px, py);
+        walls_->setData(0, "wall");
+        scene->addItem(walls_2);
+
+        walls_3->setPos(px + 75, py);
+        walls_->setData(0, "wall");
+        scene->addItem(walls_3);
+
+        walls_4->setPos(px + 150, py);
+        walls_->setData(0, "wall");
+        scene->addItem(walls_4);
+
+        py -= 40;
+    }
+
+    QPixmap leafWall    = walls.copy(148, 120, 20, 20).scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    QGraphicsPixmapItem* walls_   = new QGraphicsPixmapItem(leafWall);
+    walls_->setPos(-2, py - 6);
+    scene->addItem(walls_);
+
+
+
+    background->setPos(0, 0);
+    background->setZValue(-1000);
+
+    scene->addItem(background);
+
+}
+
+
+void MainWindow::designLevel2(QGraphicsScene*& scene){
+
+}
 
 
 MainWindow::~MainWindow()

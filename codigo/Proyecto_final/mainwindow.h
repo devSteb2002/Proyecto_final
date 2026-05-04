@@ -30,13 +30,17 @@ private:
     Ui::MainWindow *ui;
 
     QStackedWidget* stack;
-    QWidget* menuScreen;
-    QPixmap originalFrame;
-    QLabel* bgMenu;
-    QAudioOutput* audioOutput;
-    QMediaPlayer* theme;
+    QWidget*            menuScreen;
+    QPixmap             originalFrame;
+    QLabel*              bgMenu;
+    QAudioOutput*    audioOutput;
+    QMediaPlayer*     theme;
     QGraphicsScene* scene;
-    QGraphicsView* view;
+    QGraphicsView*   view;
+    QGraphicsView*   view2;
+
+    void designLevel1(QGraphicsScene*& scene);
+    void designLevel2(QGraphicsScene*& scene);
 
 };
 #endif // MAINWINDOW_H
