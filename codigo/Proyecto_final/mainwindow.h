@@ -11,6 +11,7 @@
 #include <QAudioOutput>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,6 +42,7 @@ private:
 
     void designLevel1(QGraphicsScene*& scene);
     void designLevel2(QGraphicsScene*& scene);
+    void updateLevel();
 
 };
 #endif // MAINWINDOW_H

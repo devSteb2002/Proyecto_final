@@ -1,10 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/cities.png</file>
         <file>images/backgorund.jpg</file>
         <file>fonts/Orbitron-Medium.ttf</file>
         <file>audio/principal-theme.mp3</file>
         <file>images/bg-level-1.png</file>
-        <file>images/walls.png</file>
+        <file>images/textures.png</file>
+        <file>images/sonic-scrap_.png</file>
+        <file>audio/fire.mp3</file>
     </qresource>
 </RCC>

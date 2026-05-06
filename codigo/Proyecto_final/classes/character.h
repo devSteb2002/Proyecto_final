@@ -2,15 +2,25 @@
 #define CHARACTER_H
 
 #include <QGraphicsPixmapItem>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
-class Character : public QGraphicsPixmapItem
+class Character : public QObject, public QGraphicsPixmapItem
 {
+    Q_OBJECT
+
     public:
         Character();
 
     protected:
-        unsigned short attempts;
-        unsigned short force;
+        unsigned short        attempts;
+        unsigned short        force;
+        unsigned short        frame = 0;
+        QAudioOutput*        audioOutput;
+        QMediaPlayer*         sound;
+        QVector<QPixmap>  vFrames;
+        qreal                       px;
+        qreal                       py;
 
 
 };

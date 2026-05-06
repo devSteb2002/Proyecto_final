@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QTimer>
 #include <QFontDatabase>
 #include <QFile>
 #include <QScreen>
 #include "classes/player.h"
+#include "classes/enemy.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -123,15 +123,6 @@ MainWindow::MainWindow(QWidget *parent)
   this->theme->play();
   this->theme->setLoops(QMediaPlayer::Infinite);
 
-   connect(playBtn, &QPushButton::clicked, this, [=](){
-         this->stack->setCurrentIndex(1);
-         this->theme->stop();
-   });
-
-   connect(exitBtn, &QPushButton::clicked, this, [=](){
-       close();
-   });
-
    QTimer::singleShot(50, this, [=]() {
 
        // 1. Obtenemos el rectángulo real del contenedor
@@ -173,78 +164,66 @@ MainWindow::MainWindow(QWidget *parent)
    this->view->setBackgroundBrush(Qt::NoBrush);
    this->view->setStyleSheet("background: transparent; border: none;");
 
-   this->designLevel1(scene); // diseño nivel 1
 
-   Player* player = new Player();
-   this->scene->addItem(player);
+   connect(playBtn, &QPushButton::clicked, this, [=](){
+       this->stack->setCurrentIndex(1);
+       this->theme->stop();
 
-   QTimer::singleShot(50, this, [=]() {
-       QRect screenRect = this->screen()->geometry();
+       this->designLevel1(scene); // diseño nivel 1
 
-        this->setFixedSize(screenRect.size());
-        this->stack->setFixedSize(screenRect.size());
-        this->scene->setSceneRect(0, 0, 2000, screenRect.height());
-        this->view->setFixedSize(screenRect.size());
-        this->view->setStyleSheet("background-color: #040405; border: none;");
+       // Player* player = new Player();
+       // this->scene->addItem(player);
+
+       Enemy* enemy1 = new Enemy(true, "fire", 0, 430);
+       this->scene->addItem(enemy1);
+       enemy1->intiEnemy();
+
+       QTimer::singleShot(50, this, [=]() {
+           QRect screenRect = this->screen()->geometry();
+
+           this->setFixedSize(screenRect.size());
+           this->stack->setFixedSize(screenRect.size());
+           this->scene->setSceneRect(0, 0, 2000, screenRect.height());
+           this->view->setFixedSize(screenRect.size());
+           this->view->setStyleSheet("background-color: #040405; border: none;");
+       });
    });
+
+   connect(exitBtn, &QPushButton::clicked, this, [=](){
+       close();
+   });
+
 
 }
 
 void MainWindow::designLevel1(QGraphicsScene*& scene){
     QPixmap bg(":/images/bg-level-1.png");
+    QPixmap walls(":/images/textures.png");
+    QPixmap assets(":/images/sonic-scrap_.png");
 
-    bg = bg.scaled(scene->sceneRect().width(),
-                   scene->sceneRect().height(),
-                   Qt::IgnoreAspectRatio,
-                   Qt::SmoothTransformation);
+    bg = bg.scaled(scene->sceneRect().width(), scene->sceneRect().height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-    unsigned const short   des = 50;
     QGraphicsPixmapItem* background = new QGraphicsPixmapItem(bg);
+    QGraphicsPixmapItem* walls_         = nullptr;
+    QGraphicsPixmapItem* rotateWalls_= nullptr;
 
-    QPixmap walls(":/images/walls.png");
-    QPixmap stoneWall = walls.copy(234, 263, 30, 20).scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap platform            = assets.copy(470, 587, 200, 50).scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap platformRotate = assets.copy(470, 587, 200, 50).scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation).transformed(QTransform().rotate(180));
 
-    const unsigned short px = 75;
-    unsigned short py = 840;
+    walls_          = new QGraphicsPixmapItem(platform);
+    rotateWalls_ = new QGraphicsPixmapItem(platformRotate);
 
-    for (unsigned short i = 0; i < 6; i++){
-        QGraphicsPixmapItem* walls_   = new QGraphicsPixmapItem(stoneWall);
-        QGraphicsPixmapItem* walls_2   = new QGraphicsPixmapItem(stoneWall);
-        QGraphicsPixmapItem* walls_3   = new QGraphicsPixmapItem(stoneWall);
-        QGraphicsPixmapItem* walls_4   = new QGraphicsPixmapItem(stoneWall);
-
-        walls_->setPos(0, py);
-        walls_->setData(0, "wall");
-        scene->addItem(walls_);
-
-        walls_2->setPos(px, py);
-        walls_->setData(0, "wall");
-        scene->addItem(walls_2);
-
-        walls_3->setPos(px + 75, py);
-        walls_->setData(0, "wall");
-        scene->addItem(walls_3);
-
-        walls_4->setPos(px + 150, py);
-        walls_->setData(0, "wall");
-        scene->addItem(walls_4);
-
-        py -= 40;
-    }
-
-    QPixmap leafWall    = walls.copy(148, 120, 20, 20).scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    QGraphicsPixmapItem* walls_   = new QGraphicsPixmapItem(leafWall);
-    walls_->setPos(-2, py - 6);
-    scene->addItem(walls_);
-
-
+    walls_->setPos(0, 600);
+    walls_->setData(0, "wall");
+    rotateWalls_->setPos(188, 603.7);
+    rotateWalls_->setData(0, "wall");
 
     background->setPos(0, 0);
     background->setZValue(-1000);
 
     scene->addItem(background);
-
+    scene->addItem(walls_);
+    scene->addItem(rotateWalls_);
 }
 
 

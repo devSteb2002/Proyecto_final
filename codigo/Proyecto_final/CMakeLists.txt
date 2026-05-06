@@ -20,6 +20,7 @@ qt_add_executable(Proyecto_final
     resources.qrc
     classes/character.h classes/character.cpp
     classes/player.h classes/player.cpp
+    classes/enemy.h classes/enemy.cpp
 
 )
 
