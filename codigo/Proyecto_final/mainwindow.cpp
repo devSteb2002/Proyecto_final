@@ -3,8 +3,6 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QScreen>
-#include "classes/player.h"
-#include "classes/enemy.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -125,21 +123,17 @@ MainWindow::MainWindow(QWidget *parent)
 
    QTimer::singleShot(50, this, [=]() {
 
-       // 1. Obtenemos el rectángulo real del contenedor
        QRect rectCapa = menuScreen->rect();
 
-       // 2. Le damos un pequeño margen de error para que no se vea el fondo
        rectCapa.setWidth(rectCapa.width() + 2);
        rectCapa.setHeight(rectCapa.height() + 2);
 
-       // 3. Escalamos la imagen basándonos en ese nuevo tamaño
        QPixmap scaled = originalFrame.scaled(
            rectCapa.size(),
            Qt::KeepAspectRatioByExpanding,
            Qt::SmoothTransformation
            );
 
-       // 4. Aplicamos todo al Label en un solo paso
        this->bgMenu->setPixmap(scaled);
        this->bgMenu->setGeometry(rectCapa);
        this->bgMenu->setAlignment(Qt::AlignCenter);
@@ -165,18 +159,38 @@ MainWindow::MainWindow(QWidget *parent)
    this->view->setStyleSheet("background: transparent; border: none;");
 
 
+  this->physics = new PhysicsSystem();
+  this->player = new Player(this->scene);
+
    connect(playBtn, &QPushButton::clicked, this, [=](){
        this->stack->setCurrentIndex(1);
        this->theme->stop();
 
        this->designLevel1(scene); // diseño nivel 1
 
-       // Player* player = new Player();
-       // this->scene->addItem(player);
+       this->scene->addItem(player);
 
-       Enemy* enemy1 = new Enemy(true, "fire", 0, 430);
+
+       //enemigos
+       Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
+       Enemy* enemy2 = new Enemy(true, "fire", 480, 100, true, false);
+       Enemy* enemy3 = new Enemy(true, "fire", 540, 100, true, false);
+      // Enemy* robot1  = new Enemy(physics, "robot", 500, 500, true);
+
        this->scene->addItem(enemy1);
+       this->scene->addItem(enemy2);
+       this->scene->addItem(enemy3);
+      // this->scene->addItem(robot1);
+
        enemy1->intiEnemy();
+       enemy2->intiEnemy();
+       enemy3->intiEnemy();
+       //robot1->intiEnemy();
+
+       this->enemies.push_back(enemy1);
+       this->enemies.push_back(enemy2);
+       this->enemies.push_back(enemy3);
+       //this->enemies.push_back(robot1);
 
        QTimer::singleShot(50, this, [=]() {
            QRect screenRect = this->screen()->geometry();
@@ -185,7 +199,7 @@ MainWindow::MainWindow(QWidget *parent)
            this->stack->setFixedSize(screenRect.size());
            this->scene->setSceneRect(0, 0, 2000, screenRect.height());
            this->view->setFixedSize(screenRect.size());
-           this->view->setStyleSheet("background-color: #040405; border: none;");
+           this->view->setStyleSheet("background-color: #000018; border: none;");
        });
    });
 
@@ -213,9 +227,9 @@ void MainWindow::designLevel1(QGraphicsScene*& scene){
     walls_          = new QGraphicsPixmapItem(platform);
     rotateWalls_ = new QGraphicsPixmapItem(platformRotate);
 
-    walls_->setPos(0, 600);
+    walls_->setPos(0, 750);
     walls_->setData(0, "wall");
-    rotateWalls_->setPos(188, 603.7);
+    rotateWalls_->setPos(188, 753.7);
     rotateWalls_->setData(0, "wall");
 
     background->setPos(0, 0);
@@ -234,7 +248,10 @@ void MainWindow::designLevel2(QGraphicsScene*& scene){
 
 MainWindow::~MainWindow()
 {
+
+    this->scene->clear();
+    this->enemies.clear();
+    delete this->physics;
+
     delete ui;
-    delete stack;
-    delete menuScreen;
 }

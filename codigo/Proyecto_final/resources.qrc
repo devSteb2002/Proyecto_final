@@ -7,5 +7,7 @@
         <file>images/textures.png</file>
         <file>images/sonic-scrap_.png</file>
         <file>audio/fire.mp3</file>
+        <file>images/robot.png</file>
+        <file>images/heart.png</file>
     </qresource>
 </RCC>

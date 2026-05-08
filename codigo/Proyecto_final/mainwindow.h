@@ -12,6 +12,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QTimer>
+#include "classes/player.h"
+#include "classes/enemy.h"
+#include "classes/physicssystem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,15 +33,18 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    QStackedWidget* stack;
-    QWidget*            menuScreen;
-    QPixmap             originalFrame;
-    QLabel*              bgMenu;
-    QAudioOutput*    audioOutput;
-    QMediaPlayer*     theme;
-    QGraphicsScene* scene;
-    QGraphicsView*   view;
-    QGraphicsView*   view2;
+    QStackedWidget*     stack;
+    QWidget*                menuScreen;
+    QPixmap                 originalFrame;
+    QLabel*                   bgMenu;
+    QAudioOutput*         audioOutput;
+    QMediaPlayer*         theme;
+    QGraphicsScene*     scene;
+    QGraphicsView*       view;
+    QGraphicsView*       view2;
+    QVector<Enemy*>   enemies;
+    PhysicsSystem*        physics;
+    Player*                    player;
 
     void designLevel1(QGraphicsScene*& scene);
     void designLevel2(QGraphicsScene*& scene);

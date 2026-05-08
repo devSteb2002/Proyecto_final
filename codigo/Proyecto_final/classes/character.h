@@ -4,6 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include "physicssystem.h"
 
 class Character : public QObject, public QGraphicsPixmapItem
 {
@@ -11,17 +12,20 @@ class Character : public QObject, public QGraphicsPixmapItem
 
     public:
         Character();
+        Character(PhysicsSystem* physics);
 
+        ~Character();
     protected:
-        unsigned short        attempts;
-        unsigned short        force;
         unsigned short        frame = 0;
+        unsigned short        life = 100;
         QAudioOutput*        audioOutput;
         QMediaPlayer*         sound;
         QVector<QPixmap>  vFrames;
-        qreal                       px;
-        qreal                       py;
-
+        float                        px;
+        float                        py;
+        float                        angle = 0;
+        short                       vPerFrame = 0;
+        PhysicsSystem*        physics = nullptr;
 
 };
 
