@@ -9,5 +9,7 @@
         <file>audio/fire.mp3</file>
         <file>images/robot.png</file>
         <file>images/heart.png</file>
+        <file>images/sonic.png</file>
+        <file>images/ball_golf.png</file>
     </qresource>
 </RCC>

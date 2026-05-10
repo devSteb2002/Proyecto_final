@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "character.h"
+#include "projectile.h"
 #include <Qtimer>
 
 class Player :  public Character {
@@ -17,11 +18,12 @@ class Player :  public Character {
         unsigned short                               attempts = 3;
         unsigned short                               force;
         QGraphicsScene*                           scene;
-        QVector<QGraphicsPixmapItem*>   hearts;
+        QVector<QGraphicsPixmapItem*>    hearts;
         QGraphicsRectItem*                       powerBg;
         QGraphicsRectItem*                       powerBar;
-        bool                                              charging;
-        QTimer*                                         timer;
+        bool                                             charging;
+        QTimer*                                       timer;
+        bool                                             isShooting = false;
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;

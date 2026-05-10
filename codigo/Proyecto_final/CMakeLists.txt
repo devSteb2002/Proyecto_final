@@ -22,6 +22,8 @@ qt_add_executable(Proyecto_final
     classes/player.h classes/player.cpp
     classes/enemy.h classes/enemy.cpp
     classes/physicssystem.h classes/physicssystem.cpp
+    classes/projectile.h classes/projectile.cpp
+
 
 )
 

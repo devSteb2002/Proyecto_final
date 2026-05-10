@@ -28,13 +28,12 @@ Enemy::Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown,
 Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world)
     : world(world), typeEnemy(typeEnemy), Character(physics) {
 
-    this->timer = new QTimer();
-
     if (this->typeEnemy == "robot") {
+        this->timer = new QTimer();
         connect(this->timer, &QTimer::timeout, this, &Enemy::framMCU);
+        timer->start(16);
     }
 
-   timer->start(16);
 
     Character::px = px;
     Character::py = py;

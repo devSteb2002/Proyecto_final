@@ -15,7 +15,7 @@ class Enemy : public Character{
         bool        world;
         bool        upsideDown;
         bool        first;
-        QString   typeEnemy;
+        QString    typeEnemy;
         QTimer*  timer;
 
     private slots:
