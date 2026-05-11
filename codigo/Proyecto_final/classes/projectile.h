@@ -6,15 +6,15 @@
 
 class Projectile : public QObject, public QGraphicsPixmapItem{
     public:
-        Projectile(Character* owner, PhysicsSystem* physics,  QString type, float px, float py);
+        Projectile(Character* owner, QString type, float px, float py);
         Projectile(float px, float py);
 
         void initProjectile();
 
-        ~Projectile();
         bool getIsMoving() const;
         void setIsMoving(bool newIsMoving);
 
+        ~Projectile();
     private:
         Character*                owner;
         PhysicsSystem*         physics;

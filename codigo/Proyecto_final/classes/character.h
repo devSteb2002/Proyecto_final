@@ -14,6 +14,8 @@ class Character : public QObject, public QGraphicsPixmapItem
         Character();
         Character(PhysicsSystem* physics);
 
+        virtual void reinitBall();
+        virtual  void loseLife();
 
         ~Character();
     protected:

@@ -11,5 +11,6 @@
         <file>images/heart.png</file>
         <file>images/sonic.png</file>
         <file>images/ball_golf.png</file>
+        <file>audio/golf_swing.mp3</file>
     </qresource>
 </RCC>

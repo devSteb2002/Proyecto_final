@@ -1,7 +1,7 @@
 #include "projectile.h"
 #include <qgraphicsscene.h>
 
-Projectile::Projectile(Character *owner, PhysicsSystem *physics, QString type, float px, float py) : owner(owner), type(type), px(px), py(py) {
+Projectile::Projectile(Character *owner, QString type, float px, float py) : owner(owner), type(type), px(px), py(py) {
 
     if (this->type == "golf"){
         QPixmap sheet(":/images/ball_golf.png");
@@ -17,6 +17,7 @@ Projectile::Projectile(Character *owner, PhysicsSystem *physics, QString type, f
     connect(this->timer, &QTimer::timeout, this, &Projectile::updateProjectile);
     this->timer->start(14);
 
+    this->physics = new PhysicsSystem();
     this->physics->setX0(this->px);
     this->physics->setY0(this->py);
 }
@@ -46,14 +47,13 @@ void Projectile::updateProjectile(){
     }
 
     this->physics->parabolicMotion(this->px, this->py, this->angle, this->time);
-    this->time +=  0.016f;
+    this->time +=  0.1f;
 
     setPos(this->px, this->py);
 
     if (this->py > scene()->height()){ // eliminar escena si sale de la pantalla
-       //this->owner-
-        scene()->removeItem(this);
-        delete this;
+        this->owner->reinitBall();
+        this->owner->loseLife();
         return;
     }
 
@@ -64,6 +64,7 @@ void Projectile::updateProjectile(){
 
 Projectile::~Projectile(){
     delete this->timer;
+    delete this->physics;
 }
 
 bool Projectile::getIsMoving() const {

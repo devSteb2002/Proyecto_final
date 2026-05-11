@@ -12,6 +12,8 @@ Player::Player(QGraphicsScene *&scene) : scene(scene) { //sonic
     unsigned short width = 10;
     for (short i = 0; i < 3; i++){
         QGraphicsPixmapItem* hearItem = new QGraphicsPixmapItem(heartFormat);
+        QString cont = "heart" + QString::number(i + 1);
+        hearItem->setData(0, cont);
         hearItem->setPos(width, 10);
 
        this->hearts.push_back(hearItem);
@@ -36,9 +38,16 @@ Player::Player(QGraphicsScene *&scene) : scene(scene) { //sonic
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
 
-    Projectile* staticProjectile = new Projectile(245, 709);
-    staticProjectile->setData(0, "staticBall");
-    this->scene->addItem(staticProjectile);
+    this->staticProjectile = new Projectile(245, 709);
+    this->staticProjectile->setData(0, "staticBall");
+    this->scene->addItem(this->staticProjectile);
+
+    Character::audioOutput = new QAudioOutput(this);
+    Character::sound = new QMediaPlayer(this);
+    Character::sound->setAudioOutput(Character::audioOutput);
+    Character::sound->setSource(QUrl("qrc:/audio/golf_swing.mp3"));
+    Character::audioOutput->setVolume(1.0);
+
 }
 
 void Player::initPlayer(){
@@ -74,8 +83,14 @@ void Player::updatePlayer(){
 
     if (this->charging){
         Character::vPerFrame++;
+
         if(Character::vPerFrame >= 18){
-            if (this->powerBar->rect().height() <= 400){
+            bool isShooting = false;
+
+          //  for (QGraphicsItem* item: this->scene->items()) if (item->data(0).toString() == "ballShooting") isShooting = true;
+            if (this->movingProjectile != nullptr && this->movingProjectile->scene()) isShooting = true;
+
+            if (this->powerBar->rect().height() <= 400 && !isShooting){
                 Character::vPerFrame = 0;
                 setPixmap(Character::vFrames[Character::frame]);
                 Character::frame = (Character::frame + 1) % Character::vFrames.size();
@@ -93,7 +108,7 @@ void Player::updatePlayer(){
 }
 
 void Player::keyPressEvent(QKeyEvent* event) {
-    if (event->key() == Qt::Key_Space)this->charging = true;
+    if (event->key() == Qt::Key_Space) this->charging = true;
 }
 
 void Player::keyReleaseEvent(QKeyEvent* event) {
@@ -101,32 +116,48 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
     if (event->isAutoRepeat()) return;
 
     if (event->key() == Qt::Key_Space){
+        if (!this->isShooting){
+            this->staticProjectile->hide();
+            bool findBallShooted = false;
 
-        if (!this->isShooting) this->isShooting = true;
+            if (this->movingProjectile)  findBallShooted = true;
 
-        if (this->isShooting){
+            if (!findBallShooted){
+                this->movingProjectile = new Projectile(this, "golf", 245, 709);
+                this->scene->addItem(this->movingProjectile);
+                this->movingProjectile->setData(0, "ballShooting");
+                this->movingProjectile->initProjectile();
+                this->movingProjectile->setIsMoving(true);
 
-            for (QGraphicsItem* item: this->scene->items()){
-                if (item->data(0).toString() == "staticBall") item->hide();
+                Character::sound->play();
             }
-
-            Projectile* golfBall = new Projectile(this, Character::physics, "golf", 245, 709);
-            this->scene->addItem(golfBall);
-            golfBall->initProjectile();
-            golfBall->setIsMoving(true);
-
-
         }
 
         this->charging = false;
         this->force = 0;
     }
-
 }
 
-void Player::updateHearts(){
 
+void Player::reinitBall(){ // vuelve a mostrar la bola estatica para que lance de nuevo
+    this->staticProjectile->show();
+    this->scene->removeItem(this->movingProjectile);
+    delete this->movingProjectile;
+    this->movingProjectile = nullptr;
+    this->isShooting = false;
 }
+
+void Player::loseLife(){
+    this->attempts -= 1;
+    this->hearts[this->attempts]->hide();
+
+
+    if (this->attempts == 0){ // perdio y se reinicia la vida para que vuelva a empezar
+        qDebug() << "Perdiste"; //
+        return;
+    }
+}
+
 
 Player::~Player(){
     delete this->timer;

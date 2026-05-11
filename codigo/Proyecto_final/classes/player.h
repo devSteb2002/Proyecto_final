@@ -11,7 +11,9 @@ class Player :  public Character {
         Player(QGraphicsScene*& scene);
 
         void initPlayer();
-        void updateHearts();
+        void reinitBall() override;
+        void loseLife() override;
+
 
         ~Player();
     private:
@@ -23,7 +25,9 @@ class Player :  public Character {
         QGraphicsRectItem*                       powerBar;
         bool                                             charging;
         QTimer*                                       timer;
-        bool                                             isShooting = false;
+        bool                                              isShooting = false;
+        Projectile*                                     staticProjectile = nullptr;
+        Projectile*                                     movingProjectile = nullptr;
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;
