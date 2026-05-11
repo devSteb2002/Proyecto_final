@@ -1,4 +1,5 @@
 #include "projectile.h"
+#include <qgraphicsscene.h>
 
 Projectile::Projectile(Character *owner, PhysicsSystem *physics, QString type, float px, float py) : owner(owner), type(type), px(px), py(py) {
 
@@ -16,6 +17,8 @@ Projectile::Projectile(Character *owner, PhysicsSystem *physics, QString type, f
     connect(this->timer, &QTimer::timeout, this, &Projectile::updateProjectile);
     this->timer->start(14);
 
+    this->physics->setX0(this->px);
+    this->physics->setY0(this->py);
 }
 
 Projectile::Projectile(float px, float py){ // bola estatica solamente visual
@@ -34,9 +37,28 @@ void Projectile::initProjectile(){
 void Projectile::updateProjectile(){
     if (this->isMoving){
 
-        setPixmap(this->Vfreames[this->indxFrame]);
-        this->indxFrame = (this->indxFrame+ 1) %this->Vfreames.size();
+        this->frame++;
+        if  (this->frame >= 25){
+            this->frame = 0;
+            setPixmap(this->Vfreames[this->indxFrame]);
+            this->indxFrame = (this->indxFrame+ 1) %this->Vfreames.size();
+        }
     }
+
+    this->physics->parabolicMotion(this->px, this->py, this->angle, this->time);
+    this->time +=  0.016f;
+
+    setPos(this->px, this->py);
+
+    if (this->py > scene()->height()){ // eliminar escena si sale de la pantalla
+       //this->owner-
+        scene()->removeItem(this);
+        delete this;
+        return;
+    }
+
+
+
 }
 
 

@@ -11,7 +11,7 @@ class Player :  public Character {
         Player(QGraphicsScene*& scene);
 
         void initPlayer();
-
+        void updateHearts();
 
         ~Player();
     private:

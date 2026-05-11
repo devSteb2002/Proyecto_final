@@ -37,7 +37,7 @@ Player::Player(QGraphicsScene *&scene) : scene(scene) { //sonic
     setFocus();
 
     Projectile* staticProjectile = new Projectile(245, 709);
-    staticProjectile->setData(403, "staticBall");
+    staticProjectile->setData(0, "staticBall");
     this->scene->addItem(staticProjectile);
 }
 
@@ -105,15 +105,26 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
         if (!this->isShooting) this->isShooting = true;
 
         if (this->isShooting){
-            Projectile* golfBall = new Projectile(this, Character::physics, "golf", 600, 600);
+
+            for (QGraphicsItem* item: this->scene->items()){
+                if (item->data(0).toString() == "staticBall") item->hide();
+            }
+
+            Projectile* golfBall = new Projectile(this, Character::physics, "golf", 245, 709);
             this->scene->addItem(golfBall);
             golfBall->initProjectile();
             golfBall->setIsMoving(true);
+
+
         }
 
         this->charging = false;
         this->force = 0;
     }
+
+}
+
+void Player::updateHearts(){
 
 }
 

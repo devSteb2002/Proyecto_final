@@ -23,8 +23,11 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         QString                     type;
         float                         px;
         float                         py;
+        float                         angle = 50;
         bool                         isMoving = false;
-        QTimer*                    timer;
+        QTimer*                   timer;
+        unsigned short          frame = 0;
+        float                         time = 0.0f;
 
 
     private slots:

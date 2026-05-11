@@ -5,6 +5,7 @@ class PhysicsSystem{
     public:
         PhysicsSystem();
         void mcu(float&  x, float& y, float R, float &angle);
+        void parabolicMotion(float& x, float& y, float angle, float time);
 
         float getX() const;
         void setX(float newX);
@@ -15,11 +16,19 @@ class PhysicsSystem{
         float getAngle() const;
         void setAngle(float newAngle);
 
+        float getX0() const;
+        float getY0() const;
+
+        void setX0(float newX0);
+        void setY0(float newY0);
+
     private:
         float x;
         float y;
         float R;
         float angle;
+        float x0;
+        float y0;
 
 
 };

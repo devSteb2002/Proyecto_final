@@ -14,6 +14,7 @@ class Character : public QObject, public QGraphicsPixmapItem
         Character();
         Character(PhysicsSystem* physics);
 
+
         ~Character();
     protected:
         unsigned short        frame = 0;
