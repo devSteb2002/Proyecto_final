@@ -6,7 +6,7 @@
 
 class Projectile : public QObject, public QGraphicsPixmapItem{
     public:
-        Projectile(Character* owner, QString type, float px, float py);
+        Projectile(Character* owner, QString type, float px, float py, float anglef, float v0);
         Projectile(float px, float py);
 
         void initProjectile();
@@ -23,6 +23,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         QString                     type;
         float                         px;
         float                         py;
+        float                         v0;
         float                         angle = 50;
         bool                         isMoving = false;
         QTimer*                   timer;

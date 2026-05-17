@@ -5,7 +5,7 @@ class PhysicsSystem{
     public:
         PhysicsSystem();
         void mcu(float&  x, float& y, float R, float &angle);
-        void parabolicMotion(float& x, float& y, float angle, float time);
+        void parabolicMotion(float& x, float& y, float angle, float time, float v0);
 
         float getX() const;
         void setX(float newX);

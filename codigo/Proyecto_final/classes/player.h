@@ -19,15 +19,23 @@ class Player :  public Character {
     private:
         unsigned short                               attempts = 3;
         unsigned short                               force;
-        QGraphicsScene*                           scene;
-        QVector<QGraphicsPixmapItem*>    hearts;
-        QGraphicsRectItem*                       powerBg;
-        QGraphicsRectItem*                       powerBar;
-        bool                                             charging;
-        QTimer*                                       timer;
+        QGraphicsScene*                            scene;
+        QVector<QGraphicsPixmapItem*>     hearts;
+        QVector<QPixmap>                        portals;
+        QGraphicsPixmapItem*                    portal;
+        QTimer*                                       timerPortal;
+        unsigned short                               framePortal = 0;
+        QGraphicsRectItem*                        powerBg;
+        QGraphicsRectItem*                        powerBar;
+        bool                                              charging;
+        QTimer*                                        timer;
         bool                                              isShooting = false;
-        Projectile*                                     staticProjectile = nullptr;
-        Projectile*                                     movingProjectile = nullptr;
+        Projectile*                                      staticProjectile = nullptr;
+        Projectile*                                      movingProjectile = nullptr;
+        QGraphicsPixmapItem*                     arrow =nullptr;
+        float                                              angleArrow = 0.0f;
+        bool                                              isArrowUp = true;
+        unsigned short                                frameArrow = 0;
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;
@@ -35,6 +43,7 @@ class Player :  public Character {
 
     private slots:
         void updatePlayer();
+        void  updatePortal();
 
 };
 

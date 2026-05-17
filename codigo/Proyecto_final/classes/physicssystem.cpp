@@ -4,14 +4,14 @@
 PhysicsSystem::PhysicsSystem() {}
 
 void PhysicsSystem::mcu(float&  x, float& y, float R, float &angle){
-    x = 500 + R * cos(angle);
-    y = 500 + R * sin(angle);
+    x = x + R * cos(angle);
+    y = y + R * sin(angle);
 }
 
-void PhysicsSystem::parabolicMotion(float& x, float& y, float angle, float time){
+void PhysicsSystem::parabolicMotion(float& x, float& y, float angle, float time, float v0){
     float radians = angle * M_PI / 180.0f;
-    float vx =100 * cos(radians);
-    float vy = 100 * sin(radians);
+    float vx =v0 * cos(radians);
+    float vy = v0 * sin(radians);
 
     x = x0 + vx * time;
 

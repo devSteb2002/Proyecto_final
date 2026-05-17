@@ -12,5 +12,7 @@
         <file>images/sonic.png</file>
         <file>images/ball_golf.png</file>
         <file>audio/golf_swing.mp3</file>
+        <file>images/arrow.png</file>
+        <file>images/portal.png</file>
     </qresource>
 </RCC>

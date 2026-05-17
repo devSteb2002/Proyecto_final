@@ -171,27 +171,21 @@ MainWindow::MainWindow(QWidget *parent)
        this->scene->addItem(player);
        this->player->initPlayer();
 
-
        //enemigos
        Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
-       // Enemy* enemy2 = new Enemy(true, "fire", 480, 100, true, false);
-       // Enemy* enemy3 = new Enemy(true, "fire", 540, 100, true, false);
-      // Enemy* robot1  = new Enemy(physics, "robot", 500, 500, true);
+      Enemy* robot1  = new Enemy(physics, "robot", 600, 500, true);
+       Enemy* robot2 = new Enemy(physics, "robot", 1000, 200, true);
 
        this->scene->addItem(enemy1);
-       // this->scene->addItem(enemy2);
-       // this->scene->addItem(enemy3);
-      // this->scene->addItem(robot1);
+      this->scene->addItem(robot1);
+      this->scene->addItem(robot2);
 
        enemy1->intiEnemy();
-       // enemy2->intiEnemy();
-       // enemy3->intiEnemy();
-       //robot1->intiEnemy();
+       robot1->intiEnemy();
+       robot2->intiEnemy();
 
-       // this->enemies.push_back(enemy1);
-       // this->enemies.push_back(enemy2);
-       // this->enemies.push_back(enemy3);
-       //this->enemies.push_back(robot1);
+       this->enemies.push_back(robot1);
+       this->enemies.push_back(robot2);
 
        QTimer::singleShot(50, this, [=]() {
            QRect screenRect = this->screen()->geometry();

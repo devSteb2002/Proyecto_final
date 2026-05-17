@@ -34,7 +34,6 @@ Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool
         timer->start(16);
     }
 
-
     Character::px = px;
     Character::py = py;
 }
@@ -60,7 +59,7 @@ void Enemy::intiEnemy(){
             QPixmap sheet(":/images/robot.png");
             QPixmap frame = sheet.copy(6, 14, 20, 30).scaled(70, 70, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             setPixmap(frame);
-            setPos(500, 500);
+            setPos(Character::px, Character::py);
         }
     }
 }
@@ -76,12 +75,12 @@ void Enemy::framMCU(){
 
     Character::vPerFrame++;
 
-    if(Character::vPerFrame >= 8){
+    if(Character::vPerFrame >= 6){
         Character::vPerFrame = 0;
         Character::angle += 0.5;
     }
 
-    Character::physics->mcu(Character::px , Character::py, 130, Character::angle);
+    Character::physics->mcu(Character::px , Character::py, 8, Character::angle);
     setPos(Character::px, Character::py);
 }
 

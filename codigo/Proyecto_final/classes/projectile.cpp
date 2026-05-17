@@ -1,7 +1,8 @@
 #include "projectile.h"
 #include <qgraphicsscene.h>
 
-Projectile::Projectile(Character *owner, QString type, float px, float py) : owner(owner), type(type), px(px), py(py) {
+Projectile::Projectile(Character *owner, QString type, float px, float py, float anglef, float v0)
+    : owner(owner), type(type), px(px), py(py), angle(anglef), v0(v0) {
 
     if (this->type == "golf"){
         QPixmap sheet(":/images/ball_golf.png");
@@ -20,6 +21,9 @@ Projectile::Projectile(Character *owner, QString type, float px, float py) : own
     this->physics = new PhysicsSystem();
     this->physics->setX0(this->px);
     this->physics->setY0(this->py);
+
+
+    this->v0 = (this->v0 * 150.0f) / 480.0f;
 }
 
 Projectile::Projectile(float px, float py){ // bola estatica solamente visual
@@ -46,7 +50,7 @@ void Projectile::updateProjectile(){
         }
     }
 
-    this->physics->parabolicMotion(this->px, this->py, this->angle, this->time);
+    this->physics->parabolicMotion(this->px, this->py, this->angle, this->time, this->v0);
     this->time +=  0.1f;
 
     setPos(this->px, this->py);
@@ -56,8 +60,6 @@ void Projectile::updateProjectile(){
         this->owner->loseLife();
         return;
     }
-
-
 
 }
 
