@@ -22,7 +22,6 @@ Projectile::Projectile(Character *owner, QString type, float px, float py, float
     this->physics->setX0(this->px);
     this->physics->setY0(this->py);
 
-
     this->v0 = (this->v0 * 150.0f) / 480.0f;
 }
 
@@ -50,17 +49,41 @@ void Projectile::updateProjectile(){
         }
     }
 
+    QList<QGraphicsItem*> collisions = collidingItems();
+
+    for (QGraphicsItem* item : std::as_const(collisions)){
+        qDebug() << item->data(0).toString() << "\n";
+
+        if (item->data(0).toString() == "platform"){
+
+            this->physics->setX0(this->px - 5);
+            this->physics->setY0(this->py);
+
+            this->angle = 180.0f - this->angle;
+            this->time = 0.0f;
+
+            this->v0 = this->v0 - 50;
+
+            setPos(this->px, this->py);
+
+            break;
+        }
+        else if (item->data(0).toString() == "wall"){
+
+        }
+    }
+
+
     this->physics->parabolicMotion(this->px, this->py, this->angle, this->time, this->v0);
     this->time +=  0.1f;
 
     setPos(this->px, this->py);
 
-    if (this->py > scene()->height()){ // eliminar escena si sale de la pantalla
+    if (this->py > scene()->height() || this->px > scene()->width() || this->px + boundingRect().width() < 0){ // pelota salio, perder vida y reiniciar pelota
         this->owner->reinitBall();
         this->owner->loseLife();
         return;
     }
-
 }
 
 

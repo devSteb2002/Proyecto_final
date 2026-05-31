@@ -173,19 +173,19 @@ MainWindow::MainWindow(QWidget *parent)
 
        //enemigos
        Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
-      Enemy* robot1  = new Enemy(physics, "robot", 600, 500, true);
-       Enemy* robot2 = new Enemy(physics, "robot", 1000, 200, true);
+      // Enemy* robot1  = new Enemy(physics, "robot", 600, 500, true);
+      //  Enemy* robot2 = new Enemy(physics, "robot", 1000, 200, true);
 
        this->scene->addItem(enemy1);
-      this->scene->addItem(robot1);
-      this->scene->addItem(robot2);
+      // this->scene->addItem(robot1);
+      // this->scene->addItem(robot2);
 
        enemy1->intiEnemy();
-       robot1->intiEnemy();
-       robot2->intiEnemy();
+       // robot1->intiEnemy();
+       // robot2->intiEnemy();
 
-       this->enemies.push_back(robot1);
-       this->enemies.push_back(robot2);
+       // this->enemies.push_back(robot1);
+       // this->enemies.push_back(robot2);
 
        QTimer::singleShot(50, this, [=]() {
            QRect screenRect = this->screen()->geometry();
@@ -215,17 +215,32 @@ void MainWindow::designLevel1(QGraphicsScene*& scene){
     QGraphicsPixmapItem* background = new QGraphicsPixmapItem(bg);
     QGraphicsPixmapItem* walls_         = nullptr;
     QGraphicsPixmapItem* rotateWalls_= nullptr;
+    QGraphicsPixmapItem* platformw_    = nullptr;
+    QGraphicsPixmapItem* platformw_2    = nullptr;
+    QGraphicsPixmapItem* platformw_3    = nullptr;
 
     QPixmap platform            = assets.copy(470, 587, 200, 50).scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QPixmap platformRotate = assets.copy(470, 587, 200, 50).scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation).transformed(QTransform().rotate(180));
+    QPixmap platformCooli    = assets.copy(262, 270, 55, 20).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation).transformed(QTransform().rotate(270));
+
 
     walls_          = new QGraphicsPixmapItem(platform);
     rotateWalls_ = new QGraphicsPixmapItem(platformRotate);
+    platformw_ = new QGraphicsPixmapItem(platformCooli);
+    platformw_2 = new QGraphicsPixmapItem(platformCooli);
+    platformw_3 = new QGraphicsPixmapItem(platformCooli);
 
     walls_->setPos(0, 750);
     walls_->setData(0, "wall");
     rotateWalls_->setPos(188, 753.7);
     rotateWalls_->setData(0, "wall");
+
+    platformw_->setPos(600, 400);
+    platformw_2->setPos(800,700);
+    platformw_->setData(0, "platform");
+    platformw_2->setData(0, "platform");
+    platformw_3->setPos(1200, 200);
+    platformw_3->setData(0, "platform");
 
     background->setPos(0, 0);
     background->setZValue(-1000);
@@ -233,6 +248,9 @@ void MainWindow::designLevel1(QGraphicsScene*& scene){
     scene->addItem(background);
     scene->addItem(walls_);
     scene->addItem(rotateWalls_);
+    scene->addItem(platformw_);
+    scene->addItem(platformw_2);
+    scene->addItem(platformw_3);
 }
 
 

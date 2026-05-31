@@ -4,6 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include <QSoundEffect>
 #include "physicssystem.h"
 
 class Character : public QObject, public QGraphicsPixmapItem

@@ -36,6 +36,8 @@ class Player :  public Character {
         float                                              angleArrow = 0.0f;
         bool                                              isArrowUp = true;
         unsigned short                                frameArrow = 0;
+        bool                                              isLoose = false;
+        QSoundEffect*                                hitBall;
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;

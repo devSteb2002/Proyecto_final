@@ -73,11 +73,9 @@ Player::Player(QGraphicsScene *&scene) : scene(scene) { //sonic
 
     //--------------audio-------------------------//
 
-    Character::audioOutput = new QAudioOutput(this);
-    Character::sound = new QMediaPlayer(this);
-    Character::sound->setAudioOutput(Character::audioOutput);
-    Character::sound->setSource(QUrl("qrc:/audio/golf_swing.mp3"));
-    Character::audioOutput->setVolume(1.0);
+    this->hitBall = new QSoundEffect(this);
+    this->hitBall->setSource(QUrl("qrc:/audio/golf_swing.wav"));
+    this->hitBall->setVolume(1.0f);
 
     //---------------- flecha---------------------//
 
@@ -111,6 +109,9 @@ void Player::initPlayer(){
 }
 
 void Player::updatePlayer(){
+
+    if (this->isLoose) return;
+
     if (this->charging){ // barra de potencia
 
         if (this->powerBar->rect().height() <= 400) {
@@ -166,6 +167,9 @@ void Player::updatePlayer(){
 }
 
 void Player::keyPressEvent(QKeyEvent* event) {
+
+    if (this->isLoose) return;
+
     if (event->key() == Qt::Key_Space) {
         this->charging = true;
 
@@ -177,6 +181,8 @@ void Player::keyPressEvent(QKeyEvent* event) {
 }
 
 void Player::keyReleaseEvent(QKeyEvent* event) {
+
+    if (this->isLoose) return;
 
     if (event->isAutoRepeat()) return;
 
@@ -196,8 +202,7 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
                 this->movingProjectile->setData(0, "ballShooting");
                 this->movingProjectile->initProjectile();
                 this->movingProjectile->setIsMoving(true);
-
-                Character::sound->play();
+                this->hitBall->play();
             }
         }
 
@@ -222,6 +227,50 @@ void Player::loseLife(){
 
     if (this->attempts == 0){ // perdio y se reinicia la vida para que vuelva a empezar
         qDebug() << "Perdiste"; //
+        this->isLoose = true;
+
+        QGraphicsRectItem* overlay = this->scene->addRect(
+            this->scene->sceneRect(),
+            Qt::NoPen,
+            QColor(0, 0, 0, 150)
+        );
+
+        overlay->setZValue(200);
+
+        QGraphicsTextItem* textYouLose = this->scene->addText("Perdiste");
+
+        QFont font("Orbitron");
+        font.setBold(true);
+        font.setPointSize(60);
+
+        textYouLose->setFont(font);
+        textYouLose->setDefaultTextColor(Qt::white);
+
+        QRectF rect = this->scene->sceneRect();
+
+        textYouLose->setPos( rect.center().x() - textYouLose->boundingRect().width()/2 - 220,
+                            rect.center().y() - textYouLose->boundingRect().height()/2);
+
+        textYouLose->setZValue(201);
+
+        QSoundEffect* loseLife = new QSoundEffect();
+        loseLife->setSource(QUrl("qrc:/audio/lose.wav"));
+        loseLife->setVolume(1.0f);
+        loseLife->play();
+
+        QTimer::singleShot(3500, [=](){
+            scene->removeItem(textYouLose);
+            scene->removeItem(overlay);
+
+            delete textYouLose;
+            delete overlay;
+            delete loseLife;
+
+            this->attempts = 3;
+            this->isLoose = false;
+            for (unsigned short i = 0; i < this->hearts.size(); i++) this->hearts[i]->show();
+        });
+
         return;
     }
 }
