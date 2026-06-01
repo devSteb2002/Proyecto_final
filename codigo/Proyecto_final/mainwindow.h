@@ -15,6 +15,7 @@
 #include "classes/player.h"
 #include "classes/enemy.h"
 #include "classes/physicssystem.h"
+#include "classes/savemanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,16 +36,17 @@ private:
 
     QStackedWidget*     stack;
     QWidget*                menuScreen;
-    QPixmap                 originalFrame;
+    QPixmap                  originalFrame;
     QLabel*                   bgMenu;
-    QAudioOutput*         audioOutput;
+    QAudioOutput*        audioOutput;
     QMediaPlayer*         theme;
     QGraphicsScene*     scene;
     QGraphicsView*       view;
     QGraphicsView*       view2;
     QVector<Enemy*>   enemies;
     PhysicsSystem*        physics;
-    Player*                    player;
+    Player*                     player;
+    SaveManager*         savemanager;
 
     void designLevel1(QGraphicsScene*& scene);
     void designLevel2(QGraphicsScene*& scene);

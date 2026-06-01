@@ -18,6 +18,10 @@ void PhysicsSystem::parabolicMotion(float& x, float& y, float angle, float time,
     y = y0 -(vy * time - 0.5f * 9.8f * time * time);
 }
 
+void PhysicsSystem::freeFallMotion(float& y, float y0, float v0, float time){
+    y = y0 + v0 * time + 0.5f*9.8f*time*time;
+}
+
 float PhysicsSystem::getX() const
 {
     return x;

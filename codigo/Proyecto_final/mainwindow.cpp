@@ -10,6 +10,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+    //------------- Cargar datos --------------------------//
+    this->savemanager = new SaveManager();
+    this->savemanager->loadData();
+
+    // ---------------- Generar menu de inicio ------------//
     QFontDatabase::addApplicationFont(":/fonts/Orbitron-Medium.ttf");
 
     if (this->layout()){
@@ -158,34 +164,39 @@ MainWindow::MainWindow(QWidget *parent)
    this->view->setBackgroundBrush(Qt::NoBrush);
    this->view->setStyleSheet("background: transparent; border: none;");
 
-
+  this->savemanager->setLevel(2);
   this->physics = new PhysicsSystem();
-  this->player = new Player(this->scene);
+  this->player = new Player(this->scene, this->savemanager->getLevel());
+
+  connect(this->player, &Player::levelCompleted, this, &MainWindow::updateLevel);
 
    connect(playBtn, &QPushButton::clicked, this, [=](){
-       this->stack->setCurrentIndex(1);
-       this->theme->stop();
 
-       this->designLevel1(scene); // diseño nivel 1
+      if (this->savemanager->getLevel() == 1){
 
-       this->scene->addItem(player);
-       this->player->initPlayer();
+          this->stack->setCurrentIndex(1);
+          this->theme->stop();
 
-       //enemigos
-       Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
-      // Enemy* robot1  = new Enemy(physics, "robot", 600, 500, true);
-      //  Enemy* robot2 = new Enemy(physics, "robot", 1000, 200, true);
+          this->designLevel1(scene); // diseño nivel 1
 
-       this->scene->addItem(enemy1);
-      // this->scene->addItem(robot1);
-      // this->scene->addItem(robot2);
+          this->scene->addItem(player);
+          this->player->initPlayer();
 
-       enemy1->intiEnemy();
-       // robot1->intiEnemy();
-       // robot2->intiEnemy();
+          //enemigos
+          Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
+          this->scene->addItem(enemy1);
+          enemy1->intiEnemy();
 
-       // this->enemies.push_back(robot1);
-       // this->enemies.push_back(robot2);
+      }
+      else{
+          this->stack->setCurrentIndex(1);
+          this->designLevel2(scene);
+          this->theme->stop();
+
+          this->scene->addItem(this->player);
+          this->player->initPlayer2();
+          this->player->setData(0, "player");
+      }
 
        QTimer::singleShot(50, this, [=]() {
            QRect screenRect = this->screen()->geometry();
@@ -202,12 +213,10 @@ MainWindow::MainWindow(QWidget *parent)
        close();
    });
 
-
 }
 
 void MainWindow::designLevel1(QGraphicsScene*& scene){
     QPixmap bg(":/images/bg-level-1.png");
-    QPixmap walls(":/images/textures.png");
     QPixmap assets(":/images/sonic-scrap_.png");
 
     bg = bg.scaled(scene->sceneRect().width(), scene->sceneRect().height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
@@ -255,7 +264,120 @@ void MainWindow::designLevel1(QGraphicsScene*& scene){
 
 
 void MainWindow::designLevel2(QGraphicsScene*& scene){
+    QPixmap bg(":/images/bg-level-1.png");
+    QPixmap assets(":/images/sonic-scrap_.png");
 
+    QPixmap platform            = assets.copy(470, 587, 200, 50).scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    bg = bg.scaled(scene->sceneRect().width(), scene->sceneRect().height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    QGraphicsPixmapItem* walls_           = nullptr;
+    QGraphicsPixmapItem* walls_1         = nullptr;
+    QGraphicsPixmapItem* walls_2         = nullptr;
+    QGraphicsPixmapItem* walls_3         = nullptr;
+    QGraphicsPixmapItem* walls_4         = nullptr;
+    QGraphicsPixmapItem* walls_5         = nullptr;
+    QGraphicsPixmapItem* walls_6         = nullptr;
+    QGraphicsPixmapItem* walls_7         = nullptr;
+    QGraphicsPixmapItem* walls_8         = nullptr;
+
+    QGraphicsPixmapItem* background = new QGraphicsPixmapItem(bg);
+
+    walls_           = new QGraphicsPixmapItem(platform);
+    walls_1         = new QGraphicsPixmapItem(platform);
+    walls_2         = new QGraphicsPixmapItem(platform);
+    walls_3         = new QGraphicsPixmapItem(platform);
+    walls_4         = new QGraphicsPixmapItem(platform);
+    walls_5         = new QGraphicsPixmapItem(platform);
+    walls_6         = new QGraphicsPixmapItem(platform);
+    walls_7         = new QGraphicsPixmapItem(platform);
+    walls_8         = new QGraphicsPixmapItem(platform);
+
+    walls_->setPos(0, 850);
+    walls_->setData(0, "wall");
+    walls_1->setPos(188, 850);
+    walls_1->setData(0, "wall");
+    walls_2->setPos(376, 850);
+    walls_2->setData(0, "wall");
+    walls_3->setPos(564, 850);
+    walls_3->setData(0, "wall");
+    walls_4->setPos(752, 850);
+    walls_4->setData(0, "wall");
+    walls_5->setPos(940, 850);
+    walls_5->setData(0, "wall");
+    walls_6->setPos(1128, 850);
+    walls_6->setData(0, "wall");
+    walls_7->setPos(1316, 850);
+    walls_7->setData(0, "wall");
+    walls_8->setPos(1504, 850);
+    walls_8->setData(0, "wall");
+
+    background->setPos(0, 0);
+    background->setZValue(-1000);
+
+    scene->addItem(background);
+    scene->addItem(walls_);
+    scene->addItem(walls_1);
+    scene->addItem(walls_2);
+    scene->addItem(walls_3);
+    scene->addItem(walls_4);
+    scene->addItem(walls_5);
+    scene->addItem(walls_6);
+    scene->addItem(walls_7);
+    scene->addItem(walls_8);
+
+   Enemy* robot1  = new Enemy(physics, "robot", 100, 100, true, scene);
+   Enemy* robot2  = new Enemy(physics, "robot", 1350, 100, true, scene);
+   Enemy* robot3  = new Enemy(physics, "robot", 400, 100, true, scene);
+   Enemy* robot4  = new Enemy(physics, "robot", 1000, 100, true, scene);
+
+    scene->addItem(robot1);
+    scene->addItem(robot2);
+    scene->addItem(robot3);
+    scene->addItem(robot4);
+    robot1->setData(0, "boss");
+    robot2->setData(0, "boss");
+    robot3->setData(0, "boss");
+    robot4->setData(0, "boss");
+    robot1->intiEnemy();
+    robot2->intiEnemy();
+    robot3->intiEnemy();
+    robot4->intiEnemy();
+
+    this->enemies = {
+        robot1,
+        robot2,
+        robot3,
+        robot4
+    };
+
+    connect(robot1, &Enemy::damageToPlayer, this->player, &Player::getDamage);
+    connect(robot2, &Enemy::damageToPlayer, this->player, &Player::getDamage);
+    connect(robot3, &Enemy::damageToPlayer, this->player, &Player::getDamage);
+    connect(robot4, &Enemy::damageToPlayer, this->player, &Player::getDamage);
+
+    connect(this->player, &Player::damageToBoss, robot1, &Enemy::getDamage);
+    connect(this->player, &Player::damageToBoss, robot2, &Enemy::getDamage);
+    connect(this->player, &Player::damageToBoss, robot3, &Enemy::getDamage);
+    connect(this->player, &Player::damageToBoss, robot4, &Enemy::getDamage);
+}
+
+
+void MainWindow::updateLevel(){
+    if (this->savemanager->getLevel() == 1) this->savemanager->setLevel(2);
+    else this->savemanager->setLevel(1);
+
+    if (!this->scene->items().isEmpty()) {
+        this->scene->clear();
+        this->player = nullptr;
+        this->player = new Player(this->scene, this->savemanager->getLevel());
+    }
+
+    if (this->savemanager->getLevel() == 2){
+        this->designLevel2(this->scene);
+    }
+
+    qDebug() << "cambio de nivel";
 }
 
 
@@ -265,6 +387,7 @@ MainWindow::~MainWindow()
     this->scene->clear();
     this->enemies.clear();
     delete this->physics;
+    delete this->savemanager;
 
     delete ui;
 }

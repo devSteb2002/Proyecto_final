@@ -23,6 +23,7 @@ qt_add_executable(Proyecto_final
     classes/enemy.h classes/enemy.cpp
     classes/physicssystem.h classes/physicssystem.cpp
     classes/projectile.h classes/projectile.cpp
+    classes/savemanager.h classes/savemanager.cpp
 
 
 )

@@ -25,13 +25,28 @@ Enemy::Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown,
     Character::py = py;
 }
 
-Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world)
-    : world(world), typeEnemy(typeEnemy), Character(physics) {
+Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world, QGraphicsScene *&scene)
+    : world(world), typeEnemy(typeEnemy), Character(physics), scene(scene) {
 
     if (this->typeEnemy == "robot") {
         this->timer = new QTimer();
         connect(this->timer, &QTimer::timeout, this, &Enemy::framMCU);
         timer->start(16);
+
+        this->timerShoot = new QTimer();
+        connect(this->timerShoot, &QTimer::timeout, this, &Enemy::shootThunder);
+
+        //shootThunder();
+        scheduleNexShoot();
+
+        this->shootsound = new QSoundEffect(this);
+        this->shootsound->setSource(QUrl("qrc:/audio/shoot.wav"));
+        this->shootsound->setVolume(1.0f);
+
+        //-------- frames de muertes ------------- //
+
+
+
     }
 
     Character::px = px;
@@ -80,10 +95,33 @@ void Enemy::framMCU(){
         Character::angle += 0.5;
     }
 
-    Character::physics->mcu(Character::px , Character::py, 8, Character::angle);
+    Character::physics->mcu(Character::px , Character::py, 3, Character::angle);
     setPos(Character::px, Character::py);
 }
 
+void Enemy::shootThunder(){
+
+    Projectile* projectileBoos = new Projectile(nullptr, Character::px, Character::py, 200, true);
+    this->scene->addItem(projectileBoos);
+    this->shootsound->play();
+
+    connect(projectileBoos, &Projectile::playerColision, this, &Enemy::damageToPlayer);
+}
+
+void Enemy::scheduleNexShoot(){
+    unsigned short delay = QRandomGenerator::global()->bounded(1000,5000);
+    this->timerShoot->start(delay);
+}
+
+void Enemy::getDamage(){
+
+
+
+
+}
+
 Enemy::~Enemy(){
-    delete this->timer;
+    if (this->timer != nullptr)   delete this->timer;
+    if (this->timerShoot != nullptr) delete this->timerShoot;
+    if (this->shootsound != nullptr) delete this->shootsound;
 }
