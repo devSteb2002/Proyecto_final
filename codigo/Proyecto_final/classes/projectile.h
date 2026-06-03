@@ -9,6 +9,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
 
     public:
+        Projectile();
         Projectile(Character* owner, QString type, float px, float py, float anglef, float v0); // nivel 1
         Projectile(Character* owner, float px, float py, float v0); // nivel 2 lanzamiento del jugador
         Projectile(Character* owner, float px, float py, float v0, bool boos);

@@ -10,6 +10,7 @@ class Player :  public Character {
     Q_OBJECT
 
     public:
+        Player();
         Player(QGraphicsScene*& scene, unsigned short level);
 
         void initPlayer();

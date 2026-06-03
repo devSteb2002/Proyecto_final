@@ -3,6 +3,8 @@
 #include <qgraphicsscene.h>
 #include <QKeyEvent>
 
+Player::Player(){}
+
 Player::Player(QGraphicsScene *&scene, unsigned short level) : scene(scene), level(level) { //sonic
 
     //------------- Vida y corazones-------------------------//

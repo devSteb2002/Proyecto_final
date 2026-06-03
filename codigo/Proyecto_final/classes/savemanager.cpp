@@ -5,7 +5,6 @@
 
 SaveManager::SaveManager() {}
 
-
 void SaveManager::loadData(){
     QFile file(":/savedDATA.txt");
 

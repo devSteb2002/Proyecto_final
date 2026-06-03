@@ -1,6 +1,8 @@
 #include "projectile.h"
 #include <qgraphicsscene.h>
 
+Projectile::Projectile(){}
+
 Projectile::Projectile(Character *owner, QString type, float px, float py, float anglef, float v0)
     : owner(owner), type(type), px(px), py(py), angle(anglef), v0(v0) {
 

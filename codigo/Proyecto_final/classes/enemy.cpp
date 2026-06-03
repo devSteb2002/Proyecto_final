@@ -2,17 +2,17 @@
 #include <qgraphicsscene.h>
 #include <QRandomGenerator>
 
+Enemy::Enemy(){}
+
 Enemy::Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown, bool first)
     : world(world), typeEnemy(typeEnemy), upsideDown(upSideDown), first(first) {
 
     if (this->first && this->typeEnemy == "fire"){
-        Character::audioOutput = new QAudioOutput(this);
-        Character::sound = new QMediaPlayer(this);
-        Character::sound->setAudioOutput(Character::audioOutput);
-        Character::sound->setSource(QUrl("qrc:/audio/fire.mp3"));
-        Character::audioOutput->setVolume(0.1);
-        Character::sound->play();
-        Character::sound->setLoops(QMediaPlayer::Infinite);
+        Character::effect = new QSoundEffect(this);
+        Character::effect->setSource(QUrl("qrc:/audio/fire.wav"));
+        Character::effect->setVolume(0.1f);
+        Character::effect->setLoopCount(QSoundEffect::Infinite);
+        Character::effect->play();
     }
 
     this->timer = new QTimer();
@@ -39,9 +39,9 @@ Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool
         //shootThunder();
         scheduleNexShoot();
 
-        this->shootsound = new QSoundEffect(this);
-        this->shootsound->setSource(QUrl("qrc:/audio/shoot.wav"));
-        this->shootsound->setVolume(1.0f);
+        Character::effect = new QSoundEffect(this);
+        Character::effect->setSource(QUrl("qrc:/audio/shoot.wav"));
+        Character::effect->setVolume(1.0f);
 
         //-------- frames de muertes ------------- //
 
@@ -103,7 +103,7 @@ void Enemy::shootThunder(){
 
     Projectile* projectileBoos = new Projectile(nullptr, Character::px, Character::py, 200, true);
     this->scene->addItem(projectileBoos);
-    this->shootsound->play();
+    Character::effect->play();
 
     connect(projectileBoos, &Projectile::playerColision, this, &Enemy::damageToPlayer);
 }
@@ -123,5 +123,5 @@ void Enemy::getDamage(){
 Enemy::~Enemy(){
     if (this->timer != nullptr)   delete this->timer;
     if (this->timerShoot != nullptr) delete this->timerShoot;
-    if (this->shootsound != nullptr) delete this->shootsound;
+    if (Character::effect != nullptr) delete Character::effect;
 }

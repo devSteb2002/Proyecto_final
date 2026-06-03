@@ -11,6 +11,7 @@ class Enemy : public Character{
     Q_OBJECT
 
     public:
+        Enemy();
         Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown, bool first);
         Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world, QGraphicsScene *& scene);
         void intiEnemy();
@@ -25,7 +26,6 @@ class Enemy : public Character{
         QTimer*  timer;
         QTimer* timerShoot;
         QGraphicsScene* scene;
-        QSoundEffect*      shootsound = nullptr;
         QVector<QPixmap> vFramesXploted;
 
         void scheduleNexShoot();

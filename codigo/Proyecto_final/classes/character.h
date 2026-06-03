@@ -2,8 +2,6 @@
 #define CHARACTER_H
 
 #include <QGraphicsPixmapItem>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 #include <QSoundEffect>
 #include "physicssystem.h"
 
@@ -23,8 +21,7 @@ class Character : public QObject, public QGraphicsPixmapItem
     protected:
         unsigned short         frame = 0;
         unsigned short         life = 100;
-        QAudioOutput*        audioOutput;
-        QMediaPlayer*         sound;
+        QSoundEffect*          effect;
         QVector<QPixmap>  vFrames;
         QVector<QPixmap>  vFramesRunningRight;
         QVector<QPixmap>  vFramesRunningleft;

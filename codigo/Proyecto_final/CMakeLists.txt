@@ -24,8 +24,7 @@ qt_add_executable(Proyecto_final
     classes/physicssystem.h classes/physicssystem.cpp
     classes/projectile.h classes/projectile.cpp
     classes/savemanager.h classes/savemanager.cpp
-
-
+    classes/game.h classes/game.cpp
 )
 
 target_link_libraries(Proyecto_final

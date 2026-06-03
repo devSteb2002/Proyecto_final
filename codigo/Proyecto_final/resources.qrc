@@ -2,11 +2,9 @@
     <qresource prefix="/">
         <file>images/backgorund.jpg</file>
         <file>fonts/Orbitron-Medium.ttf</file>
-        <file>audio/principal-theme.mp3</file>
         <file>images/bg-level-1.png</file>
         <file>images/textures.png</file>
         <file>images/sonic-scrap_.png</file>
-        <file>audio/fire.mp3</file>
         <file>images/robot.png</file>
         <file>images/heart.png</file>
         <file>images/sonic.png</file>
@@ -19,5 +17,7 @@
         <file>savedDATA.txt</file>
         <file>images/sonic_movement.png</file>
         <file>audio/shoot.wav</file>
+        <file>audio/principal-theme.wav</file>
+        <file>audio/fire.wav</file>
     </qresource>
 </RCC>
