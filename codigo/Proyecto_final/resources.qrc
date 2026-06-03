@@ -14,10 +14,16 @@
         <file>audio/golf_swing.wav</file>
         <file>audio/lose.wav</file>
         <file>audio/win.wav</file>
-        <file>savedDATA.txt</file>
         <file>images/sonic_movement.png</file>
         <file>audio/shoot.wav</file>
         <file>audio/principal-theme.wav</file>
         <file>audio/fire.wav</file>
+        <file>audio/explosion.wav</file>
+        <file>images/sonic_enemy.png</file>
+        <file>audio/laught.wav</file>
+        <file>audio/theme_levels.wav</file>
+        <file>images/laser.png</file>
+        <file>audio/rocket.wav</file>
+        <file>audio/scream.wav</file>
     </qresource>
 </RCC>

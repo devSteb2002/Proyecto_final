@@ -14,26 +14,29 @@ class Player :  public Character {
         Player(QGraphicsScene*& scene, unsigned short level);
 
         void initPlayer();
-        void initPlayer2();
+        void initPlayer(bool level2);
         void reinitBall() override;
         void loseLife() override;
         void onPortalTouched() override;
 
 
         ~Player();
+        unsigned short getAttempts() const;
+        void setAttempts(unsigned short newAttempts);
+
     private:
-        unsigned short                            attempts = 3;
+        unsigned short                             attempts = 3;
         unsigned short                             force;
-        QGraphicsScene*                          scene;
+        QGraphicsScene*                          scene = nullptr;
         QVector<QGraphicsPixmapItem*>   hearts;
         QVector<QPixmap>                       portals;
-        QGraphicsPixmapItem*                   portal;
-        QTimer*                                      timerPortal;
+        QGraphicsPixmapItem*                   portal = nullptr;
+        QTimer*                                      timerPortal = nullptr;
         unsigned short                              framePortal = 0;
-        QGraphicsRectItem*                      powerBg;
-        QGraphicsRectItem*                      powerBar;
+        QGraphicsRectItem*                      powerBg = nullptr;
+        QGraphicsRectItem*                      powerBar = nullptr;
         bool                                            charging;
-        QTimer*                                      timer;
+        QTimer*                                      timer = nullptr;
         bool                                            isShooting = false;
         Projectile*                                    staticProjectile = nullptr;
         Projectile*                                    movingProjectile = nullptr;
@@ -42,7 +45,7 @@ class Player :  public Character {
         bool                                            isArrowUp = true;
         unsigned short                              frameArrow = 0;
         bool                                            isLoose = false;
-        QSoundEffect*                              hitBall;
+        QSoundEffect*                              hitBall = nullptr;
         unsigned short                              level = 1;
         bool                                            isMoving = false;
 
@@ -59,7 +62,7 @@ class Player :  public Character {
 
     signals:
         void levelCompleted();
-        void damageToBoss();
+        void lose();
 
 };
 

@@ -25,8 +25,10 @@ Enemy::Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown,
     Character::py = py;
 }
 
-Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world, QGraphicsScene *&scene)
-    : world(world), typeEnemy(typeEnemy), Character(physics), scene(scene) {
+Enemy::Enemy(QString typeEnemy, float px, float py, bool world, QGraphicsScene *&scene, unsigned short learning)
+    : world(world), typeEnemy(typeEnemy), scene(scene), learning(learning) {
+
+    this->physics = new PhysicsSystem();
 
     if (this->typeEnemy == "robot") {
         this->timer = new QTimer();
@@ -36,17 +38,29 @@ Enemy::Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool
         this->timerShoot = new QTimer();
         connect(this->timerShoot, &QTimer::timeout, this, &Enemy::shootThunder);
 
-        //shootThunder();
         scheduleNexShoot();
 
         Character::effect = new QSoundEffect(this);
         Character::effect->setSource(QUrl("qrc:/audio/shoot.wav"));
-        Character::effect->setVolume(1.0f);
+        Character::effect->setVolume(0.3f);
+
+        this->explosionSound = new QSoundEffect(this);
+        this->explosionSound->setSource(QUrl("qrc:/audio/explosion.wav"));
+        this->explosionSound->setVolume(1.0f);
 
         //-------- frames de muertes ------------- //
+        QPixmap sheet(":/images/robot.png");
 
+        this->vFramesXploted = {
+            sheet.copy(0, 255, 30, 30).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation),
+            sheet.copy(33, 255, 30, 30).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation),
+            sheet.copy(70, 250, 35, 30).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation),
+            sheet.copy(110, 250, 35, 30).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation)
+        };
 
-
+        this->timerExploted = new QTimer();
+        connect(this->timerExploted, &QTimer::timeout, this, &Enemy::explote);
+        this->timerExploted->start(40);
     }
 
     Character::px = px;
@@ -95,7 +109,7 @@ void Enemy::framMCU(){
         Character::angle += 0.5;
     }
 
-    Character::physics->mcu(Character::px , Character::py, 3, Character::angle);
+    this->physics->mcu(Character::px , Character::py, 3, Character::angle);
     setPos(Character::px, Character::py);
 }
 
@@ -109,19 +123,61 @@ void Enemy::shootThunder(){
 }
 
 void Enemy::scheduleNexShoot(){
-    unsigned short delay = QRandomGenerator::global()->bounded(1000,5000);
-    this->timerShoot->start(delay);
+    if (this->learning == 0){
+        unsigned short delay = QRandomGenerator::global()->bounded(1000,5000);
+        this->timerShoot->start(delay);
+    }
+    else if (this->learning == 1){
+        unsigned short delay = QRandomGenerator::global()->bounded(1000,2200);
+        this->timerShoot->start(delay);
+    }
+    else {
+        unsigned short delay = QRandomGenerator::global()->bounded(1000,1500);
+        this->timerShoot->start(delay);
+    }
 }
 
-void Enemy::getDamage(){
+void Enemy::explote(){
 
+    if (this->isDead){
+        Character::frame++;
 
+        if (Character::frame >= this->vFramesXploted.size()){
+            this->timerExploted->stop();
 
+            emit enemyKilled();
 
+            this->scene->removeItem(this);
+            deleteLater();
+            return;
+        }
+
+        setPixmap(this->vFramesXploted[Character::frame]);
+    }
+
+    if (this->isDead) return;
+
+    QList<QGraphicsItem*> collisions = collidingItems();
+
+    for (QGraphicsItem* item : std::as_const(collisions)){
+
+        Projectile* projectile = dynamic_cast<Projectile*>(item);
+
+        if (projectile && (projectile->data(0).toString() != "thunder" && projectile->data(0).toString() != "laser")){
+            this->isDead = true;
+            this->explosionSound->play();
+            this->scene->removeItem(projectile);
+            projectile->deleteLater();
+            break;
+        }
+    }
 }
+
 
 Enemy::~Enemy(){
     if (this->timer != nullptr)   delete this->timer;
     if (this->timerShoot != nullptr) delete this->timerShoot;
+    if (this->timerExploted != nullptr) delete this->timerExploted;
+    if (this->physics != nullptr) delete this->physics;
     if (Character::effect != nullptr) delete Character::effect;
 }

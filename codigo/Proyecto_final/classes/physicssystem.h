@@ -23,6 +23,7 @@ class PhysicsSystem{
         void setX0(float newX0);
         void setY0(float newY0);
 
+        ~PhysicsSystem();
     private:
         float x;
         float y;

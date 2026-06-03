@@ -11,7 +11,6 @@ class Character : public QObject, public QGraphicsPixmapItem
 
     public:
         Character();
-        Character(PhysicsSystem* physics);
 
         virtual void reinitBall();
         virtual  void loseLife();
@@ -21,7 +20,7 @@ class Character : public QObject, public QGraphicsPixmapItem
     protected:
         unsigned short         frame = 0;
         unsigned short         life = 100;
-        QSoundEffect*          effect;
+        QSoundEffect*          effect = nullptr;
         QVector<QPixmap>  vFrames;
         QVector<QPixmap>  vFramesRunningRight;
         QVector<QPixmap>  vFramesRunningleft;
@@ -30,7 +29,6 @@ class Character : public QObject, public QGraphicsPixmapItem
         float                        py;
         float                        angle = 0;
         short                       vPerFrame = 0;
-        PhysicsSystem*         physics = nullptr;
 
 };
 

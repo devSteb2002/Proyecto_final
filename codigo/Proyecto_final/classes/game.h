@@ -13,6 +13,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "physicssystem.h"
+#include "boss.h"
 #include "savemanager.h"
 
 class Game: public QWidget{
@@ -26,21 +27,27 @@ public:
 
 private:
 
-    QStackedWidget*     stack;
-    QWidget*                menuScreen;
+    QStackedWidget*     stack = nullptr;
+    QWidget*                menuScreen = nullptr;
     QPixmap                  originalFrame;
-    QLabel*                   bgMenu;
-    QSoundEffect*          theme;
-    QGraphicsScene*     scene;
-    QGraphicsView*       view;
-    QVector<Enemy*>   enemies;
-    PhysicsSystem*        physics;
-    Player*                     player;
-    SaveManager*         savemanager;
+    QLabel*                   bgMenu = nullptr;
+    QSoundEffect*          theme = nullptr;
+    QSoundEffect*          themeLevels = nullptr;
+    QGraphicsScene*       scene = nullptr;
+    QGraphicsView*         view = nullptr;
+    Player*                     player = nullptr;
+    SaveManager*           savemanager = nullptr;
+    unsigned short           enemiesAlive = 4;
+    Boss*                        boss = nullptr;
 
-    void designLevel1(QGraphicsScene*& scene);
-    void designLevel2(QGraphicsScene*& scene);
+    void designLevel1();
+    void designLevel2();
     void updateLevel();
+
+private slots:
+    void onEnemyKilled();
+    void winGame();
+    void loseLevel();
 };
 
 #endif // GAME_H

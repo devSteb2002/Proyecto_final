@@ -25,6 +25,7 @@ qt_add_executable(Proyecto_final
     classes/projectile.h classes/projectile.cpp
     classes/savemanager.h classes/savemanager.cpp
     classes/game.h classes/game.cpp
+    classes/boss.h classes/boss.cpp
 )
 
 target_link_libraries(Proyecto_final

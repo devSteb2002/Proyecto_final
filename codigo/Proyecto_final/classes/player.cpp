@@ -106,6 +106,7 @@ Player::Player(QGraphicsScene *&scene, unsigned short level) : scene(scene), lev
 }
 
 void Player::initPlayer(){
+    this->attempts = 3;
     QPixmap sheet(":/images/sonic.png");
     QPixmap sonic = sheet.copy(0, 20, 32, 50).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
@@ -122,7 +123,8 @@ void Player::initPlayer(){
     setPos(150, 635);
 }
 
-void Player::initPlayer2(){
+void Player::initPlayer(bool level2){
+    this->attempts = 3;
     QPixmap sheet(":/images/sonic_movement.png");
 
     Character::vFrames = {
@@ -139,12 +141,11 @@ void Player::initPlayer2(){
         sheet.copy(416, 60, 38, 43).scaled(95, 95, Qt::KeepAspectRatio, Qt::SmoothTransformation)
     };
 
-    for (const QPixmap& pixmap : Character::vFramesRunningRight){
+    for (const QPixmap& pixmap : std::as_const(Character::vFramesRunningRight)){
         Character::vFramesRunningleft.push_back(
             pixmap.transformed(QTransform().scale(-1, 1))
         );
     }
-
 }
 
 
@@ -230,6 +231,7 @@ void Player::updatePlayer(){
 
 void Player::keyPressEvent(QKeyEvent* event) {
 
+    if (this->attempts == 0) return;
     if (this->level == 1){ // nivel1
         if (this->isLoose) return;
 
@@ -267,6 +269,7 @@ void Player::keyPressEvent(QKeyEvent* event) {
 
 void Player::keyReleaseEvent(QKeyEvent* event) {
 
+    if (this->attempts == 0) return;
     if (this->level == 1){
 
         if (this->isLoose) return;
@@ -306,12 +309,10 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
             this->scene->addItem(this->movingProjectile);
             this->movingProjectile->setData(0, "ballShooting");
             this->movingProjectile->initProjectile();
-
-            connect(this->movingProjectile, &Projectile::bossColision, this, &Player::damageToBoss);
+            this->hitBall->play();
         }
     }
 }
-
 
 void Player::reinitBall(){ // vuelve a mostrar la bola estatica para que lance de nuevo
     this->staticProjectile->show();
@@ -322,12 +323,15 @@ void Player::reinitBall(){ // vuelve a mostrar la bola estatica para que lance d
 }
 
 void Player::loseLife(){
-    this->attempts -= 1;
-    this->hearts[this->attempts]->hide();
 
+    if (this->attempts > 0 && this->attempts <= this->hearts.size()){
+        this->attempts -= 1;
+        this->hearts[this->attempts]->hide();
+    }
+
+//    if (this->attempts <= 0) this->attempts = 3;
 
     if (this->attempts == 0){ // perdio y se reinicia la vida para que vuelva a empezar
-        qDebug() << "Perdiste"; //
         this->isLoose = true;
 
         QGraphicsRectItem* overlay = this->scene->addRect(
@@ -359,17 +363,23 @@ void Player::loseLife(){
         loseLife->setVolume(1.0f);
         loseLife->play();
 
-        QTimer::singleShot(3500, [=](){
-            scene->removeItem(textYouLose);
-            scene->removeItem(overlay);
+        QTimer::singleShot(3500, this, [this, overlay, textYouLose, loseLife](){
+
+            if (this->scene->items().size() > 0){
+                scene->removeItem(textYouLose);
+                scene->removeItem(overlay);
+            }
 
             delete textYouLose;
             delete overlay;
-            delete loseLife;
+            loseLife->deleteLater();
 
             this->attempts = 3;
             this->isLoose = false;
-            for (unsigned short i = 0; i < this->hearts.size(); i++) this->hearts[i]->show();
+
+            for (auto heart: std::as_const(this->hearts)) heart->show();
+
+            emit lose();
         });
 
         return;
@@ -428,7 +438,6 @@ void Player::onPortalTouched(){
         this->isLoose = false;
         for (unsigned short i = 0; i < this->hearts.size(); i++) this->hearts[i]->show();
 
-
         emit levelCompleted();
     });
 
@@ -445,6 +454,8 @@ void  Player::updatePortal(){
 }
 
 void  Player::getDamage(){
+    if (this->attempts == 0) return;
+
     loseLife();
 }
 
@@ -455,4 +466,14 @@ Player::~Player(){
     this->hearts.clear();
     this->portals.clear();
     delete this->hitBall;
+}
+
+unsigned short Player::getAttempts() const
+{
+    return attempts;
+}
+
+void Player::setAttempts(unsigned short newAttempts)
+{
+    attempts = newAttempts;
 }

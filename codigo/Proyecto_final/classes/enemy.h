@@ -3,6 +3,7 @@
 
 #include "character.h"
 #include "projectile.h"
+#include "physicssystem.h"
 #include <QSoundEffect>
 #include <QTimer>
 
@@ -13,20 +14,25 @@ class Enemy : public Character{
     public:
         Enemy();
         Enemy(bool world, QString typeEnemy, float px, float py, bool upSideDown, bool first);
-        Enemy(PhysicsSystem* physics, QString typeEnemy, float px, float py, bool world, QGraphicsScene *& scene);
+        Enemy(QString typeEnemy, float px, float py, bool world, QGraphicsScene *& scene, unsigned short learning);
         void intiEnemy();
 
         ~Enemy();
+
     private:
         bool        world;
         bool        upsideDown;
         bool        first;
         bool        isDead = false;
         QString   typeEnemy;
-        QTimer*  timer;
-        QTimer* timerShoot;
-        QGraphicsScene* scene;
+        QTimer*  timer = nullptr;
+        QTimer* timerShoot = nullptr;
+        QTimer* timerExploted = nullptr;
+        QGraphicsScene* scene = nullptr;
         QVector<QPixmap> vFramesXploted;
+        PhysicsSystem* physics = nullptr;
+        QSoundEffect*  explosionSound = nullptr;
+        unsigned short  learning = 1;
 
         void scheduleNexShoot();
 
@@ -34,12 +40,11 @@ class Enemy : public Character{
         void frameFire();
         void framMCU();
         void shootThunder();
-
-    public slots:
-        void getDamage();
+        void explote();
 
     signals:
         void damageToPlayer(unsigned short restHearts);
+        void enemyKilled();
 };
 
 #endif // ENEMY_H

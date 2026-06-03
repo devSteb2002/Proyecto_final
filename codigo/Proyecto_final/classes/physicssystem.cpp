@@ -81,3 +81,7 @@ void PhysicsSystem::setY0(float newY0)
 {
     y0 = newY0;
 }
+
+PhysicsSystem::~PhysicsSystem(){
+
+}

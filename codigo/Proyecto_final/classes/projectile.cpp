@@ -45,6 +45,7 @@ Projectile::Projectile(Character* owner, float px, float py, float v0) : owner(o
     this->physics = new PhysicsSystem();
     this->physics->setX0(this->px);
     this->physics->setY0(this->py);
+    setData(0, "projectilePlayer");
 
 }
 
@@ -59,9 +60,26 @@ Projectile::Projectile(Character* owner, float px, float py, float v0, bool boos
         this->timer->start(14);
 
         setPixmap(thunder);
+        setData(0, "thunder");
         setPos(this->px, this->py);
 
     }
+}
+
+Projectile::Projectile(Character* owner, double px, double py){ // rayo del boss
+    QPixmap laser(":/images/laser.png");
+    laser = laser.scaled(30, 695, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    setPixmap(laser);
+    setParentItem(owner);
+    setData(0, "laser");
+
+    setPos(px - 660, py - 100);
+
+    this->timerRotateLaser = new QTimer(this);
+    connect(this->timerRotateLaser, &QTimer::timeout, this, &Projectile::shoortLaser);
+    this->timerRotateLaser->start(16);
+
 }
 
 
@@ -97,7 +115,6 @@ void Projectile::updateProjectile(){
     bool ended     = false;
 
     for (QGraphicsItem* item : std::as_const(collisions)){
-        qDebug() << item->data(0).toString() << "\n";
 
         if (item->data(0).toString() == "platform" || (item->data(0).toString() == "wall" && this->v0 > 100)){
 
@@ -138,6 +155,11 @@ void Projectile::updateProjectile(){
 
     if (this->py > scene()->height() || this->px > scene()->width() || this->px + boundingRect().width() < 0){ // pelota salio, perder vida y reiniciar pelota
         this->owner->reinitBall();
+
+        if (!this->owner){
+            qDebug() << "nulo";
+        }
+
         this->owner->loseLife();
         return;
     }
@@ -159,7 +181,6 @@ void Projectile::shootProjectilePlayer(){
             break;
         }
     }
-
 
     if (this->py >= scene()->height() - 10){
         scene()->removeItem(this);
@@ -185,7 +206,7 @@ void Projectile::shootThunder(){
 
              this->deleteLater();
 
-             emit playerColision(1);
+            emit playerColision(1);
             colision = true;
             break;
          }
@@ -206,8 +227,22 @@ void Projectile::shootThunder(){
     }
 }
 
+void Projectile::shoortLaser(){
+
+    QList<QGraphicsItem*> collisions = collidingItems();
+
+    for (QGraphicsItem* item : std::as_const(collisions)){
+        if (item->data(0).toString() == "player"){
+            emit playerColision(1);
+            break;
+        }
+    }
+}
+
 Projectile::~Projectile(){
-    delete this->timer;
+
+    if (this->timer != nullptr) delete this->timer;
+    if (this->timerRotateLaser != nullptr) delete this->timerRotateLaser;
 
     if (this->physics != nullptr){
         delete this->physics;

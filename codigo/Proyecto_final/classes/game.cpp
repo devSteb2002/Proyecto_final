@@ -2,6 +2,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QScreen>
+#include <QComboBox>
 
 Game::Game() {}
 
@@ -41,6 +42,12 @@ Game::Game(QWidget* parent): QWidget(parent){
     menuLayout->setSpacing(15);
 
     QLabel* title                         = new QLabel("Golfito");
+    QComboBox* difficultyBox     = new QComboBox();
+    difficultyBox->addItem("Facil");
+    difficultyBox->addItem("Normal");
+    difficultyBox->addItem("Dificil");
+    difficultyBox->setCurrentIndex(this->savemanager->getLearningEnemy());
+
     QPushButton* playBtn           = new QPushButton("Jugar");
     QPushButton* exitBtn           = new QPushButton("Salir");
 
@@ -82,6 +89,38 @@ Game::Game(QWidget* parent): QWidget(parent){
         "}"
         );
 
+    difficultyBox->setStyleSheet(
+        "QComboBox {"
+        "background-color: rgba(0, 0, 0, 150);"
+        "color: white;"
+        "font-family: 'Orbitron';"
+        "font-size: 24px;"
+        "border: 2px solid white;"
+        "border-radius: 10px;"
+        "padding: 10px;"
+        "width: 234px;"
+        "}"
+
+        "QComboBox:hover {"
+        "background-color: rgba(255, 255, 255, 50);"
+        "}"
+
+        "QComboBox::drop-down {"
+        "border: none;"
+        "width: 30px;"
+        "}"
+
+        "QComboBox QAbstractItemView {"
+        "background-color: black;"
+        "color: white;"
+        "selection-background-color: white;"
+        "selection-color: black;"
+        "border: 2px solid white;"
+        "font-family: 'Orbitron';"
+        "font-size: 20px;"
+        "}"
+    );
+
     exitBtn->setStyleSheet(
         "QPushButton {"
         "background-color: rgba(0, 0, 0, 150);"
@@ -107,8 +146,11 @@ Game::Game(QWidget* parent): QWidget(parent){
     menuLayout->addSpacing(100);
     menuLayout->addWidget(playBtn, 0 , Qt::AlignCenter);
     menuLayout->addSpacing(50);
+    menuLayout->addWidget(difficultyBox, 0, Qt::AlignCenter);
+    menuLayout->addSpacing(50);
     menuLayout->addWidget(exitBtn,  0 , Qt::AlignCenter);
     menuLayout->addStretch();
+
 
     this->stack->addWidget(menuScreen);
 
@@ -117,9 +159,14 @@ Game::Game(QWidget* parent): QWidget(parent){
     //configuracion del audio
     this->theme = new QSoundEffect(this);
     this->theme->setSource(QUrl("qrc:/audio/principal-theme.wav"));
-    this->theme->setVolume(0.5f);
+    this->theme->setVolume(0.2f);
     this->theme->setLoopCount(QSoundEffect::Infinite);
     this->theme->play();
+
+    this->themeLevels = new QSoundEffect(this);
+    this->themeLevels->setSource(QUrl("qrc:/audio/theme_levels.wav"));
+    this->themeLevels->setVolume(0.2f);
+    this->themeLevels->setLoopCount(QSoundEffect::Infinite);
 
     QTimer::singleShot(50, this, [=]() {
 
@@ -156,38 +203,35 @@ Game::Game(QWidget* parent): QWidget(parent){
     this->view->setBackgroundBrush(Qt::NoBrush);
     this->view->setStyleSheet("background: transparent; border: none;");
 
-    this->savemanager->setLevel(1);
-    this->physics = new PhysicsSystem();
-    this->player = new Player(this->scene, this->savemanager->getLevel());
+    //this->savemanager->setLevel(1);
 
-    connect(this->player, &Player::levelCompleted, this, &Game::updateLevel);
+    connect(playBtn, &QPushButton::clicked, this, [this, difficultyBox](){
 
-    connect(playBtn, &QPushButton::clicked, this, [=](){
+        QString difficulty = difficultyBox->currentText();
+
+        if (difficulty == "Facil"){
+            this->savemanager->setLearningEnemy(0);
+        }
+        else if (difficulty == "Normal"){
+            this->savemanager->setLearningEnemy(1);
+        }
+        else {
+            this->savemanager->setLearningEnemy(2);
+        }
+
+        this->themeLevels->play();
 
         if (this->savemanager->getLevel() == 1){
 
             this->stack->setCurrentIndex(1);
             this->theme->stop();
 
-            this->designLevel1(scene); // diseño nivel 1
-
-            this->scene->addItem(player);
-            this->player->initPlayer();
-
-            //enemigos
-            Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
-            this->scene->addItem(enemy1);
-            enemy1->intiEnemy();
-
+            this->designLevel1(); // diseño nivel 1
         }
         else{
             this->stack->setCurrentIndex(1);
-            this->designLevel2(scene);
+            this->designLevel2();
             this->theme->stop();
-
-            this->scene->addItem(this->player);
-            this->player->initPlayer2();
-            this->player->setData(0, "player");
         }
 
         QTimer::singleShot(50, this, [=]() {
@@ -206,7 +250,17 @@ Game::Game(QWidget* parent): QWidget(parent){
     });
 }
 
-void Game::designLevel1(QGraphicsScene*& scene){
+void Game::designLevel1(){
+    this->player = new Player(this->scene, this->savemanager->getLevel());
+    this->scene->addItem(player);
+    this->player->initPlayer();
+    this->player->setAttempts(3);
+
+    //enemigos
+    Enemy* enemy1 = new Enemy(true, "fire", 0, 573, false, true);
+    this->scene->addItem(enemy1);
+    enemy1->intiEnemy();
+
     QPixmap bg(":/images/bg-level-1.png");
     QPixmap assets(":/images/sonic-scrap_.png");
 
@@ -251,10 +305,21 @@ void Game::designLevel1(QGraphicsScene*& scene){
     scene->addItem(platformw_);
     scene->addItem(platformw_2);
     scene->addItem(platformw_3);
+
+    connect(this->player, &Player::levelCompleted, this, &Game::updateLevel);
+    connect(this->player, &Player::lose, this, &Game::loseLevel);
 }
 
 
-void Game::designLevel2(QGraphicsScene*& scene){
+void Game::designLevel2(){
+    this->enemiesAlive = 4;
+
+    this->player = new Player(this->scene, this->savemanager->getLevel());
+    this->scene->addItem(this->player);
+    this->player->initPlayer(true);
+    this->player->setData(0, "player");
+    this->player->setAttempts(3);
+
     QPixmap bg(":/images/bg-level-1.png");
     QPixmap assets(":/images/sonic-scrap_.png");
 
@@ -317,10 +382,15 @@ void Game::designLevel2(QGraphicsScene*& scene){
     scene->addItem(walls_7);
     scene->addItem(walls_8);
 
-    Enemy* robot1  = new Enemy(physics, "robot", 100, 100, true, scene);
-    Enemy* robot2  = new Enemy(physics, "robot", 1350, 100, true, scene);
-    Enemy* robot3  = new Enemy(physics, "robot", 400, 100, true, scene);
-    Enemy* robot4  = new Enemy(physics, "robot", 1000, 100, true, scene);
+    Enemy* robot1  = new Enemy("robot", 100, 100, true, scene, this->savemanager->getLearningEnemy());
+    Enemy* robot2  = new Enemy("robot", 1350, 100, true, scene, this->savemanager->getLearningEnemy());
+    Enemy* robot3  = new Enemy("robot", 400, 100, true, scene, this->savemanager->getLearningEnemy());
+    Enemy* robot4  = new Enemy("robot", 1000, 100, true, scene, this->savemanager->getLearningEnemy());
+
+    this->boss = new Boss(660, 100, this->player, scene);
+
+    scene->addItem(boss);
+    boss->initBoss();
 
     scene->addItem(robot1);
     scene->addItem(robot2);
@@ -335,47 +405,114 @@ void Game::designLevel2(QGraphicsScene*& scene){
     robot3->intiEnemy();
     robot4->intiEnemy();
 
-    this->enemies = {
-        robot1,
-        robot2,
-        robot3,
-        robot4
-    };
-
     connect(robot1, &Enemy::damageToPlayer, this->player, &Player::getDamage);
     connect(robot2, &Enemy::damageToPlayer, this->player, &Player::getDamage);
     connect(robot3, &Enemy::damageToPlayer, this->player, &Player::getDamage);
     connect(robot4, &Enemy::damageToPlayer, this->player, &Player::getDamage);
 
-    connect(this->player, &Player::damageToBoss, robot1, &Enemy::getDamage);
-    connect(this->player, &Player::damageToBoss, robot2, &Enemy::getDamage);
-    connect(this->player, &Player::damageToBoss, robot3, &Enemy::getDamage);
-    connect(this->player, &Player::damageToBoss, robot4, &Enemy::getDamage);
+    connect(robot1, &Enemy::enemyKilled, this, &Game::onEnemyKilled);
+    connect(robot2, &Enemy::enemyKilled, this, &Game::onEnemyKilled);
+    connect(robot3, &Enemy::enemyKilled, this, &Game::onEnemyKilled);
+    connect(robot4, &Enemy::enemyKilled, this, &Game::onEnemyKilled);
+
+    connect(this->boss, &Boss::youWin, this, &Game::winGame);
+    connect(this->player, &Player::lose, this, &Game::loseLevel);
 }
 
 
 void Game::updateLevel(){
-    if (this->savemanager->getLevel() == 1) this->savemanager->setLevel(2);
-    else this->savemanager->setLevel(1);
-
     if (!this->scene->items().isEmpty()) {
         this->scene->clear();
         this->player = nullptr;
-        this->player = new Player(this->scene, this->savemanager->getLevel());
     }
 
-    if (this->savemanager->getLevel() == 2){
-        this->designLevel2(this->scene);
+    if (this->savemanager->getLevel() == 1){
+         this->savemanager->setLevel(2);
+        this->enemiesAlive = 4;
+        this->designLevel2();
+
+    }
+    else {
+        this->savemanager->setLevel(1);
+        this->designLevel1();
     }
 
-    qDebug() << "cambio de nivel";
+    this->savemanager->saveData();
+}
+
+void Game::onEnemyKilled(){
+    this->enemiesAlive--;
+
+    if (this->enemiesAlive == 0){
+        //animacion del boss yendose
+        this->boss->scapeBoss();
+    }
+}
+
+void Game::winGame(){
+    this->themeLevels->stop();
+
+    QGraphicsRectItem* overlay = this->scene->addRect(
+        this->scene->sceneRect(),
+        Qt::NoPen,
+        QColor(0, 0, 0, 250)
+        );
+
+    overlay->setZValue(200);
+
+    QGraphicsTextItem* textYouWin = this->scene->addText("Gracias por Jugar");
+
+    QFont font("Orbitron");
+    font.setBold(true);
+    font.setPointSize(60);
+
+    textYouWin->setFont(font);
+    textYouWin->setDefaultTextColor(Qt::white);
+
+    QRectF rect = this->scene->sceneRect();
+
+    textYouWin->setPos( rect.center().x() - textYouWin->boundingRect().width()/2 - 220,
+                       rect.center().y() - textYouWin->boundingRect().height()/2);
+
+    textYouWin->setZValue(201);
+
+    QSoundEffect* loseLife = new QSoundEffect();
+    loseLife->setSource(QUrl("qrc:/audio/win.wav"));
+    loseLife->setVolume(1.0f);
+    loseLife->play();
+
+    QTimer::singleShot(4500, [=](){
+        scene->removeItem(textYouWin);
+        scene->removeItem(overlay);
+
+        delete textYouWin;
+        delete overlay;
+        delete loseLife;
+
+        this->stack->setCurrentIndex(0);
+        this->theme->play();
+        this->scene->clear();
+        this->savemanager->setLevel(1);
+        this->savemanager->saveData();
+    });
+}
+
+void Game::loseLevel(){
+    this->scene->clear();
+
+    if (this->savemanager->getLevel() == 1){
+        designLevel1();
+    }else{
+        designLevel2();
+    }
 }
 
 Game::~Game(){
 
     this->scene->clear();
-    this->enemies.clear();
-    delete this->physics;
     delete this->savemanager;
     delete this->theme;
+
+    if (this->boss != nullptr) delete this->boss;
+    if (this->player != nullptr) delete this->player;
 }
