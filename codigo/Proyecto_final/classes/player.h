@@ -26,7 +26,7 @@ class Player :  public Character {
 
     private:
         unsigned short                             attempts = 3;
-        unsigned short                             force;
+        unsigned short                             force = 0;
         QGraphicsScene*                          scene = nullptr;
         QVector<QGraphicsPixmapItem*>   hearts;
         QVector<QPixmap>                       portals;
